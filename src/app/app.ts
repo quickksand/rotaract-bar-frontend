@@ -13,7 +13,6 @@ import {AsyncPipe} from '@angular/common';
 })
 export class App implements OnInit {
   protected title = 'rotaract-bar-frontend';
-
   protected hello$ = new Observable<String>();
 
   constructor(private http: HttpClient) {
