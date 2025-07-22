@@ -1,10 +1,45 @@
 <h1>Rotaract Bar System</h1>
-<p>Hello World - Frontend läuft!</p>
 
-@if(hello$ | async; as hello) {
-  {{ hello }}
-}
+<div style="padding-left: 20px">
+  <button (click)="onTestGetAll()">
+    Alle Bestellungen abrufen!
+  </button>
+</div>
+<div style="padding: 20px">
 
-<button (click)="onTestPost()">
-  Klick mich!
-</button>
+  @if(products$ | async; as products) {
+    @for (product of products; track product.id) {
+      @if(product.id === 1 || product.id === 2){
+        <mat-card class="example-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>{{product.name}}</mat-card-title>
+            <mat-card-subtitle>{{ product.price | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}</mat-card-subtitle>
+          </mat-card-header>
+
+          <!-- Separate Touch-Area für Card-Click -->
+          <div class="touch-area" (click)="orderService.addToOrder(product.id!)">
+            <p>Antippen zum Hinzufügen</p>
+          </div>
+
+          <mat-card-content class="quantity-controls">
+            <div style="padding-top: 20px">
+                <button matButton (click)="orderService.addToOrder(product.id!)">+</button>
+                <span class="quantity">{{ orderService.getQuantity(product.id) }}</span>
+              <button matButton (click)="orderService.removeFromOrder(product.id!)">-</button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+
+  }
+
+</div>
+
+<div style="padding: 20px">
+  <button (click)="onSendOrder()">Sende aktuelle Order</button>
+</div>
+
+<app-order-summary/>
+
+
