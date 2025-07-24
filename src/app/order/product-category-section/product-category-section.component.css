@@ -1,0 +1,31 @@
+/* product-category-section.component.css */
+.carousel-container {
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+
+  /* CSS Scroll Snap für präzise Card-Positioning */
+  scroll-snap-type: x mandatory;
+
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE/Edge */
+}
+
+.carousel-container::-webkit-scrollbar {
+  display: none;  /* Chrome/Safari */
+}
+
+.carousel-item {
+  /* Snap to each card */
+  scroll-snap-align: start;
+}
+
+.carousel-track {
+  /* Ensure proper spacing */
+  padding-right: 1rem;
+}
+
+/* Hover indicators für Desktop */
+.carousel-container:hover {
+  scrollbar-width: thin;  /* Show scrollbar on hover */
+}

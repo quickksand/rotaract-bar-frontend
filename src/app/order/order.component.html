@@ -1,0 +1,33 @@
+<div class="grid grid-cols-1 lg:grid-cols-12 h-full">
+  <main class="lg:col-span-8 bg-gray-50 p-6 overflow-y-auto">
+
+    @if(products$ | async; as products) {
+
+      @if(categories$ | async; as categories){
+        @for(category of categories; track category){
+
+          <app-product-category-section
+            [categoryTitle]="category | categoryDisplay"
+            [products]="productService.getProductsByCategory(category)"
+            class="col-span-8"/>
+
+        }
+      }
+    }
+
+  </main>
+
+  <aside class="lg:col-span-4 bg-white border-l p-6 overflow-y-auto">
+    <div class="h-full overflow-y-auto">
+      <!-- Bestellung Content -->
+      <app-order-summary/>
+      <div class="flex justify-center pt-10">
+        <button matButton class="!bg-rotaract-cranberry !text-white !rounded-lg w-80" (click)="onSendOrder()">BEZAHLEN</button>
+      </div>
+      <div class="flex justify-center pt-5">
+        <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-80" (click)="orderService.clearOrder()">ALLES LÖSCHEN</button>
+      </div>
+      </div>
+  </aside>
+
+</div>
