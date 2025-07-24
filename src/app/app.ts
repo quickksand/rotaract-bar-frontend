@@ -49,7 +49,7 @@ export class App implements OnInit {
   }
 
   ngOnInit() {
-    this.products$ = this.productService.getProducts();
+    this.products$ = this.productService.products$;
   }
 
   onSendOrder() {

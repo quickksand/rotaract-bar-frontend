@@ -1,6 +1,8 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {PurchaseOrderDto} from './api/api-client/dtos';
-import {BehaviorSubject, map} from 'rxjs';
+import {BehaviorSubject, combineLatestWith, map, Observable} from 'rxjs';
+import {ProductsService} from './products.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 interface OrderedItem {
   productId: number,
@@ -12,56 +14,80 @@ interface OrderedItem {
 })
 export class OrderService {
 
-  //alt Signals
-  // private currentOrder = signal<OrderedItem[]>();
+  private _currentOrder$ = new BehaviorSubject<OrderedItem[]>([]);
+  private _currentOrderSum$ = new BehaviorSubject<number>(0);
+  private _productService = inject(ProductsService);
 
-  //neu RxJS
-  protected currentOrder$ = new BehaviorSubject<OrderedItem[]>([]);
+  constructor() {
+    // getCurrentOrderSum
+    this._currentOrder$
+      .pipe(
+        combineLatestWith(this._productService.products$),
+        map(([order, products]): number => {
+          let sum = 0;
+          order.forEach(item => {
+            sum += (products.find(p => p.id === item.productId)?.price ?? 0) * item.quantity;
+          })
+          return sum;
+        }),
+        takeUntilDestroyed()
+      ).subscribe((sum) => this._currentOrderSum$.next(sum))
+  }
+
+  get currentOrderSum$(): Observable<number> {
+    // Public readonly Getter
+    return this._currentOrderSum$.asObservable(); // oder asReadonly()
+  }
 
   addToOrder(id: number) {
-    const existingItem = this.currentOrder$.getValue().find(item => item.productId === id);
+    const currentOrder = this._currentOrder$.getValue();
+    const existingItem = currentOrder.find(item => item.productId === id);
     if (existingItem) {
-      existingItem.quantity++;
+      const updatedOrder: OrderedItem[] = currentOrder.map(item =>
+        item.productId === id
+        ? {...item, quantity: item.quantity += 1}
+        : item
+      )
+      this._currentOrder$.next(updatedOrder);
+
     } else {
-      this.currentOrder$.next([... this.currentOrder$.getValue(), { productId: id, quantity: 1 }]);
+      this._currentOrder$.next([... this._currentOrder$.getValue(), { productId: id, quantity: 1 }]);
     }
   }
 
   removeFromOrder(id: number) {
-    const item = this.currentOrder$.getValue().find(item => item.productId === id);
-    if (item) {
-      item.quantity--;
-      if (item.quantity <= 0) {
-        this.currentOrder$.next(this.currentOrder$.getValue().filter(item => item.productId !== id));
+    const currentOrder = this._currentOrder$.getValue();
+    const existingItem = currentOrder.find(item => item.productId === id);
+
+    if (existingItem) {
+      if (existingItem.quantity <= 1) {
+        this._currentOrder$.next(currentOrder.filter(item => item.productId !== id));
+      } else {
+        const updatedOrder: OrderedItem[] = currentOrder.map(item =>
+          item.productId === id
+          ? {... item, quantity: item.quantity-1}
+          : item
+        )
+        this._currentOrder$.next(updatedOrder)
       }
     }
   }
 
   clearOrder() {
-    this.currentOrder$.next([]);
+    this._currentOrder$.next([]);
   }
 
-  getCurrentOrder() {
-    return this.currentOrder$;
+  get currentOrder$() {
+    return this._currentOrder$;
   }
 
   getQuantity(productId: number): number {
-    return this.currentOrder$.getValue().find(item => item.productId === productId)?.quantity || 0;
-  }
-
-  getTotalPrice() {
-
-    // hole withlatesfrom products um preise zu holen
-    // allerdings aktualisieren sich die preise nur bei start der anwendung einmal, dann reicht es. first value from.
-    return this.currentOrder$
-      .pipe(
-        map((orderedItems: OrderedItem[]) => console.log(orderedItems.map((item: OrderedItem) => item.productId)))
-      );
+    return this._currentOrder$.getValue().find(item => item.productId === productId)?.quantity || 0;
   }
 
   convertToPurchaseOrderDto(): PurchaseOrderDto {
     return {
-      items: this.currentOrder$.getValue()
+      items: this._currentOrder$.getValue()
     };
   }
 

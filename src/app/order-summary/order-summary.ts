@@ -1,29 +1,28 @@
 import {Component, inject} from '@angular/core';
-import {OrderedItem} from '../app';
 import {OrderService} from '../order.service';
 import {Observable} from 'rxjs';
-import {AsyncPipe, JsonPipe} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
+import {ProductsService} from '../products.service';
+import {ProductDto} from '../api/api-client/dtos';
 
 @Component({
   selector: 'app-order-summary',
   imports: [
-    AsyncPipe,
-    JsonPipe
+    AsyncPipe
   ],
   templateUrl: './order-summary.html',
   styleUrl: './order-summary.css'
 })
 export class OrderSummary {
+  protected readonly productsService = inject(ProductsService);
+  protected readonly orderService = inject(OrderService);
 
-  //hole dir ordersummary - entweder service (präferiert) oder input signals
-  // bei änderung an bestellung soll auch ein getOrder ausgeführt werden
-  // currentOrder = input<OrderedItem[]>()
+  protected readonly products$: Observable<ProductDto[]>
+  protected readonly currentOrder$
 
-  protected orderService = inject(OrderService);
-  protected currentOrder$ = new Observable<OrderedItem[]>()
 
   constructor() {
-    this.currentOrder$ = this.orderService.getCurrentOrder();
+    this.currentOrder$ = this.orderService.currentOrder$;
+    this.products$ = this.productsService.products$;
   }
-
 }

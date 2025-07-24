@@ -1,4 +1,27 @@
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+@theme {
+  /* Rotaract Primary Colors */
+  --color-rotaract-cranberry: #d41367;
+
+  /* Rotary Extended Colors */
+  --color-rotary-blue: #0067c8;
+  --color-rotary-gold: #f7a81b;
+  --color-rotary-turquoise: #00adbb;
+
+  /* Brand Neutrals */
+  --color-brand-charcoal: #54565a;
+  --color-brand-smoke: #b1b1b1;
+  --color-brand-silver: #d0cfcd;
+}
+
+/* Hohe Kontraste für schlechte Beleuchtung */
+.high-contrast-text    { color: #000000; font-weight: 600; }
+.button-primary        { background: #d41367; color: white; font-size: 18px; }
+.button-gold           { background: #f7a81b; color: black; font-weight: bold; }
+.button-secondary      { background: #17458f; color: white; }
+.price-display         { font-size: 20px; font-weight: bold; color: #54565a; }

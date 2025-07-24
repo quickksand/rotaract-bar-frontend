@@ -1,7 +1,8 @@
 import {inject, Injectable} from '@angular/core';
-import {shareReplay} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {ProductDto} from './api/api-client/dtos';
 import {HttpClient} from '@angular/common/http';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: "root"
@@ -9,9 +10,23 @@ import {HttpClient} from '@angular/common/http';
 export class ProductsService {
 
   private http = inject(HttpClient);
-  protected products$ = this.http.get<ProductDto[]>('/api/products').pipe(shareReplay(1));
+  private _products$ = new BehaviorSubject<ProductDto[]>([]);
 
-  getProducts() {
-    return this.products$;
+  constructor() {
+    this.http.get<ProductDto[]>('/api/products')
+      .pipe(
+        takeUntilDestroyed()
+      )
+      .subscribe(
+        products => this._products$.next(products)
+      );
+  }
+
+  get products$() {
+    return this._products$;
+  }
+
+  public getProductById(productId: number){
+    return this._products$.getValue().find(product => product.id === productId)
   }
 }
