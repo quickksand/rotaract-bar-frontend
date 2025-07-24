@@ -14,7 +14,6 @@ import {StrictHttpResponse} from '../strict-http-response';
 import {createOrder, CreateOrder$Params} from '../fn/purchase-order-controller/create-order';
 import {getOrderById, GetOrderById$Params} from '../fn/purchase-order-controller/get-order-by-id';
 import {getOrders, GetOrders$Params} from '../fn/purchase-order-controller/get-orders';
-import {hello, Hello$Params} from '../fn/purchase-order-controller/hello';
 import {PurchaseOrder} from '../models/purchase-order';
 
 @Injectable({ providedIn: 'root' })
@@ -119,39 +118,6 @@ export class PurchaseOrderControllerService extends BaseService {
   getOrderById(params: GetOrderById$Params, context?: HttpContext): Observable<PurchaseOrder> {
     return this.getOrderById$Response(params, context).pipe(
       map((r: StrictHttpResponse<PurchaseOrder>): PurchaseOrder => r.body)
-    );
-  }
-
-  /** Path part for operation `hello()` */
-  static readonly HelloPath = '/api/orders/hi';
-
-  /**
-   * Greet a user.
-   *
-   * This endpoint greets the user
-   *
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `hello()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  hello$Response(params?: Hello$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
-    return hello(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * Greet a user.
-   *
-   * This endpoint greets the user
-   *
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `hello$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  hello(params?: Hello$Params, context?: HttpContext): Observable<string> {
-    return this.hello$Response(params, context).pipe(
-      map((r: StrictHttpResponse<string>): string => r.body)
     );
   }
 

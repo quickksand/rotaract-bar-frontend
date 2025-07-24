@@ -1,14 +1,15 @@
 import {Component, inject} from '@angular/core';
-import {OrderService} from '../order.service';
+import {OrderService} from '../../services/order.service';
 import {Observable} from 'rxjs';
-import {AsyncPipe} from '@angular/common';
-import {ProductsService} from '../products.service';
-import {ProductDto} from '../api/api-client/dtos';
+import {AsyncPipe, CurrencyPipe} from '@angular/common';
+import {ProductsService} from '../../services/products.service';
+import {ProductDto} from '../../api/api-client/dtos';
 
 @Component({
   selector: 'app-order-summary',
   imports: [
-    AsyncPipe
+    AsyncPipe,
+    CurrencyPipe
   ],
   templateUrl: './order-summary.html',
   styleUrl: './order-summary.css'

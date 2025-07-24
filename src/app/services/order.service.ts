@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {PurchaseOrderDto} from './api/api-client/dtos';
+import {PurchaseOrderDto} from '../api/api-client/dtos';
 import {BehaviorSubject, combineLatestWith, map, Observable} from 'rxjs';
 import {ProductsService} from './products.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';

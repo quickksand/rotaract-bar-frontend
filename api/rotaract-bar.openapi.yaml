@@ -116,26 +116,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PurchaseOrder"
-  /api/orders/hi:
-    get:
-      tags:
-        - purchase-order-controller
-      summary: Greet a user
-      description: This endpoint greets the user
-      operationId: hello
-      responses:
-        "200":
-          description: Successful greeting
-          content:
-            application/json:
-              schema:
-                type: string
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: string
 components:
   schemas:
     OrderedItem:
@@ -144,9 +124,7 @@ components:
         id:
           type: integer
           format: int64
-        #        product:
-        #          $ref: "#/components/schemas/Product"
-        productId: # <- Viel besser!
+        productId:
           type: integer
           format: int64
         quantity:
@@ -163,6 +141,19 @@ components:
           type: string
         price:
           type: number
+          format: double
+        category:
+          type: string
+          enum:
+            - DRINKS
+            - BEER_WINE_NONALC
+            - SHOTS
+          description: "Product category for bar organization"
+      required:
+        - id
+        - name
+        - price
+        - category
     PurchaseOrder:
       type: object
       properties:

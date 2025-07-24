@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {ProductDto} from './api/api-client/dtos';
+import {ProductDto} from '../api/api-client/dtos';
 import {HttpClient} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
@@ -23,10 +23,15 @@ export class ProductsService {
   }
 
   get products$() {
-    return this._products$;
+    return this._products$.asObservable();
   }
 
   public getProductById(productId: number){
     return this._products$.getValue().find(product => product.id === productId)
+  }
+
+  public getProductsByCategory(category: string): ProductDto[] {
+    return this._products$.getValue().filter(p => p.category === category);
+
   }
 }

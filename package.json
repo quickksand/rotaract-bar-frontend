@@ -5,7 +5,7 @@
     "ng": "ng",
     "prestart:local-backend": "npm run openapi:all",
     "start:local-backend": "ng serve --proxy-config proxy.conf.json",
-    "openapi:all": "ng-openapi-gen -c infrastructure/api/rotaract-bar.openapi.json",
+    "openapi:all": "ng-openapi-gen -c api/rotaract-bar.openapi.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
