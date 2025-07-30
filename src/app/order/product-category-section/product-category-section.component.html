@@ -1,74 +1,45 @@
-<h1 class="text-2xl font-bold pb-5">{{categoryTitle()}}</h1>
-<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+<section class="mb-6">
 
-  @for (product of products(); track product.id) {
-    <mat-card class="p-3 h-32" appearance="outlined">
-      <div class="flex flex-col h-full">
-        <div class="flex-shrink-0 mb-2">
-          <h3 class="font-bold text-xl truncate">{{ product.name }}</h3>
-          <p class="text-rotaract-cranberry font-bold text-sm">{{ product.price | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}</p>
+  <!-- Category Header -->
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold">
+      {{categoryTitle()}}
+    </h2>
+
+    <div class="flex items-center gap-4">
+      <span class="text-sm text-brand-smoke">{{ products().length }} Produkte</span>
+
+      <!-- Scroll Buttons (nur wenn mehr Products da sind) -->
+      @if(products().length > 4) {
+        <div class="flex gap-2">
+          <button
+            class="bg-gray-200 hover:bg-gray-300 p-2 rounded-full transition-colors"
+            (click)="onSwipeRight()">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"></path>
+            </svg>
+          </button>
+
+          <button
+            class="bg-gray-200 hover:bg-gray-300 p-2 rounded-full transition-colors"
+            (click)="onSwipeLeft()">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+            </svg>
+          </button>
         </div>
+      }
+    </div>
+  </div>
 
-  <!--      <mat-card-header>-->
-  <!--        <mat-card-title>{{product.name}}</mat-card-title>-->
-  <!--        <mat-card-subtitle>{{ product.price | currency : 'EUR' : "symbol" : '1.2-2': 'de' }}</mat-card-subtitle>-->
-  <!--      </mat-card-header>-->
+  <!--<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 p-4 mb-6">-->
 
-        <div class="flex-1 flex items-end">
-          @if(orderService.getQuantity(product.id) === 0) {
-            <button class="w-full bg-rotaract-cranberry text-white py-2 rounded text-sm font-bold"
-                    (click)="orderService.addToOrder(product.id!)">
-              + HINZUFÜGEN
-            </button>
-          } @else {
-            <div class="flex items-center justify-between w-full">
-              <button class="w-8 h-8 bg-rotary-azure text-white rounded font-bold">−</button>
-              <span class="font-bold text-lg">{{ orderService.getQuantity(product.id) }}</span>
-              <button class="w-8 h-8 bg-rotaract-cranberry text-white rounded font-bold"
-                      (click)="orderService.addToOrder(product.id!)">+</button>
-            </div>
-          }
-
-
-  <!--      <mat-card-content class="mt-4">-->
-
-  <!--        &lt;!&ndash; State 1: Noch nicht bestellt (Quantity = 0) &ndash;&gt;-->
-  <!--        &lt;!&ndash; State 2: Bereits bestellt (Quantity > 0) &ndash;&gt;-->
-  <!--        @if(orderService.getQuantity(product.id!) === 0) {-->
-  <!--          <button-->
-  <!--            class="w-full bg-white py-4 rounded-lg font-bold border-1 border-rotaract-cranberry text-lg hover:bg-rotaract-cranberry/90 transition-colors"-->
-  <!--            (click)="orderService.addToOrder(product.id!)">-->
-  <!--            + HINZUFÜGEN-->
-  <!--          </button>-->
-  <!--        }@else {-->
-  <!--          <div class="flex items-center justify-between gap-3">-->
-
-  <!--            &lt;!&ndash; Minus Button &ndash;&gt;-->
-  <!--            <button-->
-  <!--              class="bg-white border-1 border-rotaract-cranberry w-14 h-14 rounded-lg font-bold text-xl hover:bg-rotary-azure/90 transition-colors"-->
-  <!--              (click)="orderService.removeFromOrder(product.id!)">-->
-  <!--              −-->
-  <!--            </button>-->
-
-  <!--            &lt;!&ndash; Quantity Display (groß und prominent) &ndash;&gt;-->
-  <!--            <span class="text-3xl font-bold text-rotaract-cranberry min-w-[4rem] text-center"-->
-  <!--                  (click)="orderService.addToOrder(product.id!)">-->
-  <!--                            {{ orderService.getQuantity(product.id!) }}-->
-  <!--                          </span>-->
-
-  <!--            &lt;!&ndash; Plus Button &ndash;&gt;-->
-  <!--            <button-->
-  <!--              class="bg-rotaract-cranberry text-white w-14 h-14 rounded-lg font-bold text-xl hover:bg-rotaract-cranberry/90 transition-colors"-->
-  <!--              (click)="orderService.addToOrder(product.id!)">-->
-  <!--              +-->
-  <!--            </button>-->
-
-  <!--          </div>-->
-  <!--        }-->
-
-  <!--      </mat-card-content>-->
+  <!-- Horizontal Scrollable Cards -->
+  <div #carousel class="carousel-container overflow-x-auto pb-2 flex gap-4">
+      @for (product of products(); track product.id) {
+        <div class="carousel-item min-w-[180px] flex-shrink-0 w-48">
+          <app-product-card [product]="product" class="h-36"/>
         </div>
-      </div>
-    </mat-card>
-  }
-</div>
+      }
+  </div>
+</section>

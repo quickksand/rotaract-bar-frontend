@@ -9,7 +9,7 @@ import {ProductsService} from '../services/products.service';
 import {HttpClient} from '@angular/common/http';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ProductCategorySection} from './product-category-section/product-category-section.component';
-import {CategoryDisplayPipe} from '../category-display.pipe';
+import {CategoryDisplayPipe} from './category-display.pipe';
 
 export interface OrderedItem {
   productId: number,

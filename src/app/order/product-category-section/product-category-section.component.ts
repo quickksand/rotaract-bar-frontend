@@ -1,15 +1,12 @@
-import {Component, inject, input} from '@angular/core';
+import {Component, ElementRef, input, ViewChild} from '@angular/core';
 import {Product} from '../../api/generated-api/models/product';
-import {CurrencyPipe} from '@angular/common';
-import {MatCard} from '@angular/material/card';
-import {OrderService} from '../../services/order.service';
+import {ProductCard} from './product-card/product-card';
 
 @Component({
   selector: 'app-product-category-section',
   standalone: true,
   imports: [
-    CurrencyPipe,
-    MatCard
+    ProductCard
   ],
   templateUrl: './product-category-section.component.html',
   styleUrl: './product-category-section.component.css'
@@ -19,6 +16,14 @@ export class ProductCategorySection {
   categoryTitle = input.required<String>();
   products = input.required<Product[]>();
 
-  protected orderService = inject(OrderService);
+  @ViewChild('carousel') carousel!: ElementRef;
+
+  onSwipeLeft() {
+    this.carousel.nativeElement.scrollBy({ left: 500, behavior: 'smooth' });
+  }
+
+  onSwipeRight() {
+    this.carousel.nativeElement.scrollBy({ left: -500, behavior: 'smooth' });
+  }
 
 }
