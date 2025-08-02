@@ -1,0 +1,43 @@
+<!-- STEMPELKARTE Section - direkt vor LONGDRINKS -->
+<section class="mb-8">
+  <h2 class="text-xl font-bold pb-4">🎫 STEMPELKARTE</h2>
+
+  <div class="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+    <!-- Status anzeigen: [●●●○○] 3/5 -->
+    <div class="flex items-center gap-2">
+      @for(i of [1,2,3,4]; track i) {
+        <button
+          class="w-8 h-8 rounded-full border-2 font-bold text-sm transition-colors"
+          [class.bg-rotaract-cranberry]="(orderService.stampCardStatus$ | async)! >= i"
+          [class.text-white]="(orderService.stampCardStatus$ | async)! >= i"
+          [class.border-rotaract-cranberry]="(orderService.stampCardStatus$ | async)! >= i"
+          [class.border-gray-300]="(orderService.stampCardStatus$ | async)! < i"
+          (click)="orderService.setStampStatus(i)">
+          {{ i }}
+        </button>
+      }
+    </div>
+
+      <!-- Status-Anzeige -->
+      <div class="flex items-center gap-3">
+      <span class="text-sm text-gray-600">
+        {{ orderService.stampCardStatus$ | async }}/4
+      </span>
+
+      @if((orderService.currentOrder$ | async)!.length > 0) {
+        <span class="text-gray-400">→</span>
+        <!-- Deutliche Hervorhebung des finalen Status -->
+        <div class="bg-rotaract-cranberry text-white px-3 py-2 rounded-lg font-bold">
+          {{ orderService.stampCardStatusAfter$ | async }}/4
+        </div>
+      }
+    </div>
+
+<!--      &lt;!&ndash; Free Status &ndash;&gt;-->
+<!--      @if(orderService.nextDrinkFree$ | async) {-->
+<!--        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">-->
+<!--      Nächster: FREE!-->
+<!--    </span>-->
+<!--      }-->
+    </div>
+</section>

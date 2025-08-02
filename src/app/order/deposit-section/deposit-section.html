@@ -1,33 +1,35 @@
-<section class="mb-6">
-  <h2 class="text-xl font-bold pb-4">
-    🥤 PFAND
-  </h2>
+<section class="mb-8">
+  <h2 class="text-xl font-bold pb-4">🥤 PFAND</h2>
 
-  <mat-card class="p-2 pb-4 cursor-pointer hover:bg-gray-50"
-            appearance="outlined"
+  <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+
+    <!-- ZURÜCK Button -->
+    <button class="flex-1 bg-white border-2 border-gray-300 rounded-lg p-3
+                   hover:border-rotaract-cranberry transition-colors relative"
             (click)="returnCup()">
 
-    <mat-card-header>
-      <mat-card-title class="!line-clamp-1 !leading-tight">
-        ZURÜCK
-      </mat-card-title>
-      <mat-card-subtitle>
-        + 2€ Guthaben
-        @if((orderService.creditBalance$ | async)! > 0) {
-          <span class="ml-2 text-green-600 font-semibold">
-          | Guthaben: {{ orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-        </span>
-        }
-      </mat-card-subtitle>
-
-      <!-- Quantity Badge (nur wenn > 0) -->
+      <!-- Badge für Anzahl -->
       @if((orderService.returnedCupsCount$ | async)! > 0) {
-        <div class="absolute -right-2.5 bg-rotaract-cranberry text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+        <div class="absolute -top-2 -right-2 bg-rotaract-cranberry text-white
+                    rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
           {{ orderService.returnedCupsCount$ | async }}
         </div>
       }
 
-    </mat-card-header>
-  </mat-card>
+      <div class="text-center">
+        <div class="font-bold text-brand-charcoal">ZURÜCK</div>
+        <div class="text-sm text-gray-600">+2€ je Becher</div>
+      </div>
+    </button>
 
+    <!-- Guthaben Display -->
+    @if((orderService.creditBalance$ | async)! > 0) {
+      <div class="bg-green-100 px-4 py-3 rounded-lg">
+        <div class="text-sm text-green-700">Guthaben</div>
+        <div class="font-bold text-green-800">
+          {{ orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+        </div>
+      </div>
+    }
+  </div>
 </section>

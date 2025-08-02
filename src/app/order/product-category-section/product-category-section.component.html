@@ -2,20 +2,21 @@
 
   <!-- Category Header -->
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-xl font-bold">
-      {{categoryTitle()}}
-    </h2>
+    <div class="flex items-center gap-4">
+      <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        {{categoryTitle()}}
+      </h2>
+    </div>
 
     <div class="flex items-center gap-4">
-<!--      <span class="text-sm text-brand-smoke">{{ products().length }} Produkte</span>-->
 
       <!-- Scroll Buttons (nur wenn mehr Products da sind) -->
       @if(products().length > 4) {
-        <div class="flex gap-2">
+        <div class="flex gap-1">
           <button
             class="bg-gray-200 hover:bg-gray-300 p-2 rounded-full transition-colors"
             (click)="onSwipeRight()">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"></path>
             </svg>
           </button>
@@ -23,7 +24,7 @@
           <button
             class="bg-gray-200 hover:bg-gray-300 p-2 rounded-full transition-colors"
             (click)="onSwipeLeft()">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
               <path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
             </svg>
           </button>

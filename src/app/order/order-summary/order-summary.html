@@ -14,23 +14,44 @@
         <tbody class="divide-y divide-gray-100">
           @for(item of currentOrder; track item.productId){
             <tr class="hover:bg-gray-50 transition-colors">
-              <td class="py-4 px-2 font-medium text-brand-charcoal">{{productsService.getProductById(item.productId)?.name}}</td>
+              <td class="py-4 px-2 font-medium text-brand-charcoal">
+                {{productsService.getProductById(item.productId)?.name}}
+                @if((orderService.freeItemsByProduct$ | async)!.get(item.productId)) {
+                  <br>
+                  <span class="ml-1 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {{ (orderService.freeItemsByProduct$ | async)!.get(item.productId) }}x gratis
+                  </span>
+                }
+              </td>
               <td class="py-4 px-2 text-center">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-rotaract-cranberry text-white font-bold text-sm">
                   {{ item.quantity }}
                 </span>
               </td>
-              <td class="py-4 px-2 text-right font-bold text-brand-charcoal">{{(productsService.getProductById(item.productId)?.price ?? 0) * item.quantity | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}</td>
+              <td class="py-4 px-2 text-right font-bold text-brand-charcoal">
+                {{(productsService.getProductById(item.productId)?.price ?? 0) * item.quantity | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}
+              </td>
             </tr>
           }
 
-        <!-- Zwischensummen -->
-        <tr class="border-0">
-          <td colspan="2" class="py-2 px-2 text-brand-charcoal">Zwischensumme:</td>
-          <td class="py-2 px-2 text-right text-brand-charcoal">
-            {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-          </td>
-        </tr>
+        @if(currentOrder.length > 0){
+          <!-- Zwischensummen -->
+          <tr class="border-0">
+            <td colspan="2" class="py-2 px-2 text-brand-charcoal">Zwischensumme:</td>
+            <td class="py-2 px-2 text-right text-brand-charcoal">
+              {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+            </td>
+          </tr>
+        }
+
+          @if((this.orderService.freeDrinkDiscount$ | async)! > 0) {
+            <tr class="border-0">
+              <td colspan="2" class="py-2 px-2 text-green-600">Stempelkarte:</td>
+              <td class="py-2 px-2 text-right text-green-600">
+                -{{ this.orderService.freeDrinkDiscount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              </td>
+            </tr>
+          }
 
           @if((this.orderService.currentDepositSum$ | async)! > 0) {
             <tr class="border-0">

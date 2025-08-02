@@ -1,5 +1,8 @@
-<mat-card class="p-2 pb-4"
+<mat-card class="!p-2 !pb-4 !border-l-2 !transition-all !duration-200"
           appearance="outlined"
+          [class.!border-l-4]="quantity() > 0"
+          [class.!border-l-rotaract-cranberry]="quantity() > 0"
+
           (click)="orderService.addToOrder(product().id!)">
 
   <mat-card-header>
