@@ -8,9 +8,9 @@ import {Pipe, PipeTransform} from '@angular/core';
 export class CategoryDisplayPipe implements PipeTransform {
 
   private readonly mappings: Record<string, string> = {
-    'DRINKS': '🍹 Longdrinks & Cocktails',
-    'BEER_WINE_NONALC': '🍺 Bier & Non-Alk',
-    'SHOTS': '🥃 Shots'
+    'DRINKS': '🍹 LONGDRINKS',
+    'BEER_WINE_NONALC': '🍺 BIER & NON-ALK',
+    'SHOTS': '🥃 SHOTS'
   };
 
   transform(category: string): string {

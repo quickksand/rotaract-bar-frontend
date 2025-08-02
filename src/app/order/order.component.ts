@@ -7,9 +7,9 @@ import {ProductDto} from '../api/api-client/dtos';
 import {OrderService} from '../services/order.service';
 import {ProductsService} from '../services/products.service';
 import {HttpClient} from '@angular/common/http';
-import {toSignal} from '@angular/core/rxjs-interop';
 import {ProductCategorySection} from './product-category-section/product-category-section.component';
 import {CategoryDisplayPipe} from './category-display.pipe';
+import {DepositSection} from './deposit-section/deposit-section';
 
 export interface OrderedItem {
   productId: number,
@@ -24,7 +24,8 @@ export interface OrderedItem {
     MatButton,
     OrderSummary,
     ProductCategorySection,
-    CategoryDisplayPipe
+    CategoryDisplayPipe,
+    DepositSection
   ],
   templateUrl: './order.component.html',
   styleUrl: './order.component.css'
@@ -33,19 +34,15 @@ export class OrderComponent {
   protected orderService = inject(OrderService);
   protected productService = inject(ProductsService);
 
-  protected products$: Observable<ProductDto[]>;
+  protected products$: Observable<ProductDto[] | undefined>;
   protected categories$;
-
-  protected products = toSignal(this.productService.products$, {initialValue: []})
 
   constructor(private http: HttpClient) {
     this.products$ = this.productService.products$;
     this.categories$ = this.products$.pipe(
       map(products => {
-        // Set für unique categories, dann zu Array
-        console.log(products)
         return [...new Set(
-          products.map(product => product.category)
+          products?.map(product => product.category)
         )];
       })
     );

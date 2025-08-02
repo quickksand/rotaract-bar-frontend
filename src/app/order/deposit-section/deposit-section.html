@@ -1,0 +1,33 @@
+<section class="mb-6">
+  <h2 class="text-xl font-bold pb-4">
+    🥤 PFAND
+  </h2>
+
+  <mat-card class="p-2 pb-4 cursor-pointer hover:bg-gray-50"
+            appearance="outlined"
+            (click)="returnCup()">
+
+    <mat-card-header>
+      <mat-card-title class="!line-clamp-1 !leading-tight">
+        ZURÜCK
+      </mat-card-title>
+      <mat-card-subtitle>
+        + 2€ Guthaben
+        @if((orderService.creditBalance$ | async)! > 0) {
+          <span class="ml-2 text-green-600 font-semibold">
+          | Guthaben: {{ orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+        </span>
+        }
+      </mat-card-subtitle>
+
+      <!-- Quantity Badge (nur wenn > 0) -->
+      @if((orderService.returnedCupsCount$ | async)! > 0) {
+        <div class="absolute -right-2.5 bg-rotaract-cranberry text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+          {{ orderService.returnedCupsCount$ | async }}
+        </div>
+      }
+
+    </mat-card-header>
+  </mat-card>
+
+</section>

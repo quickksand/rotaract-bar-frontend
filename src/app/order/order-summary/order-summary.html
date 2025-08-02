@@ -1,39 +1,66 @@
 <h1 class="text-2xl font-bold pb-10">📋 BESTELLUNG</h1>
 
-
 <div class="mb-6">
   @if(products$ | async) {
     @if(currentOrder$ | async; as currentOrder ) {
       <table class="w-full">
         <thead>
-          <tr class="bg-gray-50 border-b-2 border-rotaract-cranberry">
-            <th class="text-left py-3 px-2 font-bold text-brand-charcoal text-sm">Produkt</th>
-            <th class="text-center py-3 px-2 font-bold text-brand-charcoal text-sm">Anzahl</th>
-            <th class="text-right py-3 px-2 font-bold text-brand-charcoal text-sm">Preis</th>
-          </tr>
+        <tr class="bg-gray-50 border-b-2 border-rotaract-cranberry">
+          <th class="text-left py-3 px-2 font-bold text-brand-charcoal text-sm">Produkt</th>
+          <th class="text-center py-3 px-2 font-bold text-brand-charcoal text-sm">Anzahl</th>
+          <th class="text-right py-3 px-2 font-bold text-brand-charcoal text-sm">Preis</th>
+        </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           @for(item of currentOrder; track item.productId){
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="py-4 px-2 font-medium text-brand-charcoal">{{productsService.getProductById(item.productId)?.name}}</td>
-              <!-- Anzahl (mit schickem Badge) -->
               <td class="py-4 px-2 text-center">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-rotaract-cranberry text-white font-bold text-sm">
-                {{ item.quantity }}
-              </span>
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-rotaract-cranberry text-white font-bold text-sm">
+                  {{ item.quantity }}
+                </span>
               </td>
               <td class="py-4 px-2 text-right font-bold text-brand-charcoal">{{(productsService.getProductById(item.productId)?.price ?? 0) * item.quantity | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}</td>
             </tr>
           }
-            <tr class="border-t-2 border-gray-200">
-              <td colspan="2" class="py-4 px-2 font-bold text-brand-charcoal text-lg">GESAMT:</td>
-              <td class="py-4 px-2 text-right font-bold text-rotaract-cranberry text-xl">
-                {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+
+        <!-- Zwischensummen -->
+        <tr class="border-0">
+          <td colspan="2" class="py-2 px-2 text-brand-charcoal">Zwischensumme:</td>
+          <td class="py-2 px-2 text-right text-brand-charcoal">
+            {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+          </td>
+        </tr>
+
+          @if((this.orderService.currentDepositSum$ | async)! > 0) {
+            <tr class="border-0">
+              <td colspan="2" class="py-2 px-2 text-brand-charcoal">Pfand:</td>
+              <td class="py-2 px-2 text-right text-brand-charcoal">
+                {{ this.orderService.currentDepositSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
               </td>
             </tr>
+          }
+
+          @if((this.orderService.creditBalance$ | async)! > 0) {
+            <tr class="border-0">
+              <td colspan="2" class="py-2 px-2 text-green-600">Guthaben:</td>
+              <td class="py-2 px-2 text-right text-green-600">
+                -{{ this.orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              </td>
+            </tr>
+          }
+
+        <!-- Finaler Total -->
+        <tr class="border-t-2 border-gray-200">
+          <td colspan="2" class="py-4 px-2 font-bold text-brand-charcoal text-lg">GESAMT:</td>
+          <td class="py-4 px-2 text-right font-bold text-xl"
+              [class.text-rotaract-cranberry]="(this.orderService.currentTotalSum$ | async)! >= 0"
+              [class.text-green-600]="(this.orderService.currentTotalSum$ | async)! < 0">
+            {{ this.orderService.currentTotalSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+          </td>
+        </tr>
         </tbody>
       </table>
     }
   }
 </div>
-

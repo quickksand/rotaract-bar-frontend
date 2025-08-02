@@ -18,7 +18,7 @@ export class OrderSummary {
   protected readonly productsService = inject(ProductsService);
   protected readonly orderService = inject(OrderService);
 
-  protected readonly products$: Observable<ProductDto[]>
+  protected readonly products$: Observable<ProductDto[] | undefined>
   protected readonly currentOrder$
 
 

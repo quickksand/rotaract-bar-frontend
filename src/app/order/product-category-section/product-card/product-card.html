@@ -7,9 +7,9 @@
     <mat-card-subtitle>{{ product().price | currency : 'EUR' : "symbol" : '1.2-2': 'de' }}</mat-card-subtitle>
 
     <!-- Quantity Badge (nur wenn > 0) -->
-    @if(orderService.getQuantity(product().id) > 0) {
+    @if(quantity() > 0) {
       <div class="absolute -right-2.5 bg-rotaract-cranberry text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-        {{ orderService.getQuantity(product().id) }}
+        {{ quantity() }}
       </div>
     }
 

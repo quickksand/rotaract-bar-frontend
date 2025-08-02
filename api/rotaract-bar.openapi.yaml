@@ -167,3 +167,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OrderedItem"
+        returnedCupsCount:
+          type: integer
+          format: int32
+          minimum: 0
+          description: "Number of cups returned with this order"
