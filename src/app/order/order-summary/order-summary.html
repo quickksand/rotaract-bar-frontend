@@ -15,11 +15,11 @@
           @for(item of currentOrder; track item.productId){
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="py-4 px-2 font-medium text-brand-charcoal">
-                {{productsService.getProductById(item.productId)?.name}}
-                @if((orderService.freeItemsByProduct$ | async)!.get(item.productId)) {
+                {{productsService.getProductById(item.productId!)?.name}}
+                @if((orderService.freeItemsByProduct$ | async)!.get(item.productId!)) {
                   <br>
                   <span class="ml-1 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    {{ (orderService.freeItemsByProduct$ | async)!.get(item.productId) }}x gratis
+                    {{ (orderService.freeItemsByProduct$ | async)!.get(item.productId!) }}x gratis
                   </span>
                 }
               </td>
@@ -29,7 +29,7 @@
                 </span>
               </td>
               <td class="py-4 px-2 text-right font-bold text-brand-charcoal">
-                {{(productsService.getProductById(item.productId)?.price ?? 0) * item.quantity | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}
+                {{(productsService.getProductById(item.productId!)?.price ?? 0) * item.quantity! | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}
               </td>
             </tr>
           }

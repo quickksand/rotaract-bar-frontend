@@ -54,7 +54,7 @@ export class OrderComponent {
     const newOrder = this.orderService.convertToPurchaseOrderDto();
     this.http.post<void>('api/orders', newOrder)
       .pipe(
-        tap(() => this.orderService.clearOrder())
+        tap(() => this.orderService.submitOrderToPreparation())
       )
       .subscribe((res) => console.log('POST RESPONSE ', res))
   }

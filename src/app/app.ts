@@ -1,13 +1,15 @@
 import {Component} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {OrderComponent} from './order/order.component';
+import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 
 
 @Component({
   selector: 'app-root',
   imports: [
     FormsModule,
-    OrderComponent
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'

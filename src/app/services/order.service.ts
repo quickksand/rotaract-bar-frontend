@@ -4,10 +4,26 @@ import {BehaviorSubject, combineLatestWith, map, Observable} from 'rxjs';
 import {ProductsService} from './products.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {PRICING} from '../constants/pricing.constants';
+import {OrderedItem as OrderedItemDto} from '../api/generated-api/models/ordered-item';
+import {IngredientsService} from './ingredients.service';
 
-interface OrderedItem {
-  productId: number,
-  quantity: number
+interface PrepOrder {
+  id: number;
+  orderNumber: string;
+  status: 'OFFEN' | 'IN_ARBEIT' | 'FERTIG';
+  timeAgo: string;
+  createdAt: Date;
+  total: number;
+  items: PrepOrderItem[];
+  originalOrder: PurchaseOrderDto;
+}
+
+interface PrepOrderItem {
+  name: string;
+  quantity: number;
+  status: 'OFFEN' | 'IN_ARBEIT' | 'FERTIG';
+  productId: number;
+  ingredients?: string[];
 }
 
 @Injectable({
@@ -20,7 +36,7 @@ export class OrderService {
   private _creditBalance$ = new BehaviorSubject<number>(0);
 
   //BESTELLUNG
-  private _currentOrder$ = new BehaviorSubject<OrderedItem[]>([]);
+  private _currentOrder$ = new BehaviorSubject<OrderedItemDto[]>([]);
   private _currentOrderSum$ = new BehaviorSubject<number>(0);
   private _currentDepositSum$ = new BehaviorSubject<number>(0);
   private _currentTotalSum$ = new BehaviorSubject<number>(0);
@@ -32,8 +48,12 @@ export class OrderService {
   private _freeDrinkDiscount$ = new BehaviorSubject<number>(0);
   private _freeItemsByProduct$ = new BehaviorSubject<Map<number, number>>(new Map());
 
+  // PREPARATION
+  private _preparationOrders$ = new BehaviorSubject<PrepOrder[]>([]);
+  private _orderCounter = 1;
 
   private _productService = inject(ProductsService);
+  private _ingredientsService = inject(IngredientsService)
 
   constructor() {
     //Summen-Berechnung
@@ -42,7 +62,6 @@ export class OrderService {
         combineLatestWith(
           this._productService.products$,
           this._creditBalance$,
-          // this._freeDrinkCount$,
           this._stampCardInputStatus$
         ),
         map((
@@ -50,7 +69,6 @@ export class OrderService {
             order,
             products,
             credit,
-            // freeDrinkCount,
             inputStatus
           ]) => {
 
@@ -63,12 +81,11 @@ export class OrderService {
           order.forEach(item => {
             const product = products?.find(p => p.id === item.productId);
             if (product?.category === 'DRINKS') {
-              drinksInOrder += item.quantity;
+              drinksInOrder += item.quantity!;
             }
           });
 
           // Status nach Bestellung berechnen
-          // const inputStatus = this._stampCardInputStatus$.getValue();
           let statusAfter = inputStatus + drinksInOrder;
           let earnedFreedrinks = 0;
 
@@ -83,7 +100,7 @@ export class OrderService {
           order.forEach(item => {
             const product = products?.find(p => p.id === item.productId);
             if (product?.category === 'DRINKS') {
-              for (let i = 0; i < item.quantity; i++) {
+              for (let i = 0; i < item.quantity!; i++) {
                 drinkItems.push({price: product.price, product});
               }
             }
@@ -106,10 +123,10 @@ export class OrderService {
           order.forEach(item => {
             const product = products!.find(p => p.id === item.productId);
             if (product) {
-              itemSum += product.price * item.quantity;
+              itemSum += product.price * item.quantity!;
 
               if (product.category !== 'SHOTS') {
-                depositSum += PRICING.DEPOSIT_AMOUNT * item.quantity;
+                depositSum += PRICING.DEPOSIT_AMOUNT * item.quantity!;
               }
             }
           });
@@ -149,8 +166,7 @@ export class OrderService {
   }
 
   get currentOrderSum$(): Observable<number> {
-    // Public readonly Getter
-    return this._currentOrderSum$.asObservable(); // oder asReadonly()
+    return this._currentOrderSum$.asObservable();
   }
 
   get currentDepositSum$(): Observable<number> {
@@ -181,7 +197,6 @@ export class OrderService {
     return this._stampCardStatusAfter$.asObservable();
   }
 
-
   returnCup() {
     const currentCount = this._returnedCupsCount$.getValue();
     const currentCredit = this._creditBalance$.getValue();
@@ -205,9 +220,9 @@ export class OrderService {
     const existingItem = currentOrder.find(item => item.productId === id);
 
     if (existingItem) {
-      const updatedOrder: OrderedItem[] = currentOrder.map(item =>
+      const updatedOrder: OrderedItemDto[] = currentOrder.map(item =>
         item.productId === id
-          ? {...item, quantity: item.quantity += 1}
+          ? {...item, quantity: item.quantity! += 1}
           : item
       )
       this._currentOrder$.next(updatedOrder);
@@ -221,12 +236,12 @@ export class OrderService {
     const existingItem = currentOrder.find(item => item.productId === id);
 
     if (existingItem) {
-      if (existingItem.quantity <= 1) {
+      if (existingItem!.quantity! <= 1) {
         this._currentOrder$.next(currentOrder.filter(item => item.productId !== id));
       } else {
-        const updatedOrder: OrderedItem[] = currentOrder.map(item =>
+        const updatedOrder: OrderedItemDto[] = currentOrder.map(item =>
           item.productId === id
-            ? {... item, quantity: item.quantity-1}
+            ? {... item, quantity: item.quantity!-1}
             : item
         )
         this._currentOrder$.next(updatedOrder)
@@ -237,27 +252,6 @@ export class OrderService {
   setStampStatus(stamps: number) {
     this._stampCardInputStatus$.next(Math.max(0, Math.min(4, stamps)));
   }
-
-  // private updateStampCard(change: number) {
-  //   const currentStamps = this._stampCardStatus$.getValue();
-  //   let newStamps = currentStamps + change;
-  //   let earnedFreedrinks = 0;
-  //
-  //   // Für jeden 4er-Block → 1 Free Drink verdient
-  //   while (newStamps >= 4) {
-  //     earnedFreedrinks++;
-  //     newStamps -= 4;
-  //   }
-  //
-  //   if (earnedFreedrinks > 0) {
-  //     const currentFreeCount = this._freeDrinkCount$.getValue();
-  //     this._freeDrinkCount$.next(currentFreeCount + earnedFreedrinks);
-  //   }
-  //
-  //   newStamps = Math.max(0, newStamps);
-  //   this._stampCardStatus$.next(newStamps);
-  //   this._nextDrinkFree$.next(newStamps === 4);
-  // }
 
   clearOrder() {
     this._currentOrder$.next([]);
@@ -277,5 +271,128 @@ export class OrderService {
     };
   }
 
+  // PREPARATION
+  get preparationOrders$(): Observable<PrepOrder[]> {
+    return this._preparationOrders$.asObservable();
+  }
+  get activePreparationOrders$(): Observable<PrepOrder[]> {
+    return this._preparationOrders$.pipe(
+      map(orders => orders.filter(order => order.status !== 'FERTIG'))
+    );
+  }
+
+  // Nach BEZAHLEN aufrufen
+  submitOrderToPreparation(): void {
+    const orderDto = this.convertToPurchaseOrderDto();
+
+    if (!orderDto.items || orderDto.items.length === 0) {
+      console.warn('Keine Items in der Bestellung - Preparation übersprungen');
+      this.clearOrder();
+      return;
+    }
+
+    const prepOrder: PrepOrder = {
+      id: Date.now(),
+      orderNumber: `#${this._orderCounter++}`,
+      status: 'OFFEN',
+      timeAgo: 'gerade eben',
+      createdAt: new Date(),
+      total: this.currentTotalValue,
+      items: this.convertToOrderItems(orderDto.items),
+      originalOrder: orderDto
+    };
+
+    const currentOrders = this._preparationOrders$.getValue();
+    this._preparationOrders$.next([...currentOrders, prepOrder]);
+
+    // Bestellung zurücksetzen
+    this.clearOrder();
+  }
+
+  private convertToOrderItems(items: OrderedItemDto[] | undefined): PrepOrderItem[] {
+    if (!items) return [];
+
+    return items
+      .filter(item => item.productId !== undefined && item.quantity !== undefined)
+      .map(item => {
+        const product = this._productService.getProductById(item.productId!);
+        return {
+          name: `${item.quantity!}x ${product?.name || 'Unbekannt'}`,
+          quantity: item.quantity!,
+          status: 'OFFEN' as const,
+          productId: item.productId!,
+          ingredients: this.getIngredients(item.productId!)
+        };
+      });
+  }
+
+  private getIngredients(productId: number): string[] {
+    const product = this._productService.getProductById(productId);
+
+    console.log(product)
+
+    if (product?.ingredientIds) {
+        return this._ingredientsService.getIngredientsByIds(product.ingredientIds)
+          .map(ingredient => ingredient.name || 'Unbekannt');
+    }
+
+    return [];
+  }
+
+  // Preparation Methods
+  startPrepOrder(orderId: number): void {
+    this.updateOrderStatus(orderId, 'IN_ARBEIT');
+  }
+
+  startPrepItem(orderId: number, itemIndex: number): void {
+    const orders = this._preparationOrders$.getValue();
+    const order = orders.find(o => o.id === orderId);
+    if (order?.items[itemIndex]) {
+      order.items[itemIndex].status = 'IN_ARBEIT';
+      if (order.status === 'OFFEN') {
+        order.status = 'IN_ARBEIT';
+      }
+      this._preparationOrders$.next([...orders]);
+    }
+  }
+
+  finishPrepItem(orderId: number, itemIndex: number): void {
+    const orders = this._preparationOrders$.getValue();
+    const order = orders.find(o => o.id === orderId);
+    if (order?.items[itemIndex]) {
+      order.items[itemIndex].status = 'FERTIG';
+
+      // Prüfen ob alle Items fertig
+      const allItemsFinished = order.items.every(item => item.status === 'FERTIG');
+      if (allItemsFinished) {
+        order.status = 'FERTIG';
+      }
+      this._preparationOrders$.next([...orders]);
+    }
+  }
+
+  finishPrepOrder(orderId: number): void {
+    const orders = this._preparationOrders$.getValue();
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      order.status = 'FERTIG';
+      order.items.forEach(item => item.status = 'FERTIG');
+      this._preparationOrders$.next([...orders]);
+    }
+  }
+
+  private updateOrderStatus(orderId: number, status: 'OFFEN' | 'IN_ARBEIT' | 'FERTIG'): void {
+    const orders = this._preparationOrders$.getValue();
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      order.status = status;
+      this._preparationOrders$.next([...orders]);
+    }
+  }
+
+  // Getter für currentTotalValue
+  get currentTotalValue(): number {
+    return this._currentTotalSum$.getValue();
+  }
 
 }

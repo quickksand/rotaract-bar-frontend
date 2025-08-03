@@ -9,6 +9,11 @@ export interface Product {
    */
   category: 'DRINKS' | 'BEER_WINE_NONALC' | 'SHOTS';
   id: number;
+
+  /**
+   * List of ingredient IDs for this product
+   */
+  ingredientIds?: Array<number>;
   name: string;
   price: number;
 }
