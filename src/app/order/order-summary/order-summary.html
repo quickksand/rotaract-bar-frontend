@@ -84,9 +84,9 @@
         <tr class="border-t-2 border-gray-200">
           <td colspan="2" class="py-4 px-2 font-bold text-brand-charcoal text-lg">GESAMT:</td>
           <td class="py-4 px-2 text-right font-bold text-xl"
-              [class.text-rotaract-cranberry]="(this.orderService.displayTotal$ | async)! >= 0"
-              [class.text-green-600]="(this.orderService.displayTotal$ | async)! < 0">
-            {{ this.orderService.displayTotal$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              [class.text-rotaract-cranberry]="(this.orderService.orderTotalWithTip$ | async)! >= 0"
+              [class.text-green-600]="(this.orderService.orderTotalWithTip$ | async)! < 0">
+            {{ this.orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
           </td>
         </tr>
         </tbody>
@@ -97,7 +97,8 @@
 
 <!-- TRINKGELD-CHIPS -->
 @if(currentOrder$ | async; as currentOrder) {
-  @if(currentOrder.length > 0) {
+  <!--   Min eine Bestellposition ODER einen Becher zurück-->
+  @if(currentOrder.length > 0 || (orderService.creditBalance$ | async)! > 0 ) {
     <div class="pt-2 pb-4">
       <p class="text-sm font-semibold text-brand-charcoal mb-3">Trinkgeld:</p>
       <div class="flex flex-wrap gap-2">

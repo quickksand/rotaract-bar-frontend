@@ -194,10 +194,14 @@ export class OrderService {
     return this._tipAmount$.asObservable();
   }
 
-  get displayTotal$(): Observable<number> {
+  get orderTotalWithTip$(): Observable<number> {
     return combineLatest([this._currentTotalSum$, this._tipAmount$]).pipe(
       map(([total, tip]) => total + tip)
     );
+  }
+
+  get orderTotalWithTipValue(): number {
+    return this._currentTotalSum$.getValue() + this._tipAmount$.getValue();
   }
 
   get tipAmountValue(): number {
@@ -335,7 +339,7 @@ export class OrderService {
       status: 'OFFEN',
       timeAgo: 'gerade eben',
       createdAt: new Date(),
-      total: this.currentTotalValue,
+      total: this.orderTotalWithTipValue,
       items: this.convertToOrderItems(orderDto.items),
       originalOrder: orderDto
     };
