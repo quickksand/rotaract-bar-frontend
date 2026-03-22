@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {PurchaseOrderDto} from '../api/api-client/dtos';
-import {BehaviorSubject, combineLatestWith, map, Observable} from 'rxjs';
+import {BehaviorSubject, combineLatest, combineLatestWith, map, Observable, skip} from 'rxjs';
 import {ProductsService} from './products.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {PRICING} from '../constants/pricing.constants';
@@ -40,6 +40,9 @@ export class OrderService {
   private _currentOrderSum$ = new BehaviorSubject<number>(0);
   private _currentDepositSum$ = new BehaviorSubject<number>(0);
   private _currentTotalSum$ = new BehaviorSubject<number>(0);
+
+  //TRINKGELD
+  private _tipAmount$ = new BehaviorSubject<number>(0);
 
   //STEMPELKARTE
   private _stampCardInputStatus$ = new BehaviorSubject<number>(0);
@@ -155,6 +158,14 @@ export class OrderService {
       this._stampCardStatusAfter$.next(stampCardStatusAfter);
       this._nextDrinkFree$.next(nextDrinkFree);
     });
+
+    // Trinkgeld zurücksetzen wenn sich etwas ändert, das den Gesamtbetrag beeinflusst
+    this._currentOrder$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
+    this._returnedCupsCount$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
+    this._stampCardInputStatus$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
   }
 
   get returnedCupsCount$(): Observable<number> {
@@ -163,6 +174,14 @@ export class OrderService {
 
   get creditBalance$(): Observable<number> {
     return this._creditBalance$.asObservable();
+  }
+
+  readonly donateablePfandAmount$ = this._currentTotalSum$.pipe(
+    map(total => Math.max(0, -total))
+  );
+
+  get donateablePfandAmountValue(): number {
+    return Math.max(0, -this._currentTotalSum$.getValue());
   }
 
   get currentOrderSum$(): Observable<number> {
@@ -179,6 +198,34 @@ export class OrderService {
 
   get currentOrder$() {
     return this._currentOrder$;
+  }
+
+  get tipAmount$(): Observable<number> {
+    return this._tipAmount$.asObservable();
+  }
+
+  readonly orderTotalWithTip$ = combineLatest([this._currentTotalSum$, this._tipAmount$]).pipe(
+    map(([total, tip]) => total + tip)
+  );
+
+  get orderTotalWithTipValue(): number {
+    return this._currentTotalSum$.getValue() + this._tipAmount$.getValue();
+  }
+
+  get tipAmountValue(): number {
+    return this._tipAmount$.getValue();
+  }
+
+  get creditBalanceValue(): number {
+    return this._creditBalance$.getValue();
+  }
+
+  setTip(amount: number): void {
+    this._tipAmount$.next(Math.round(amount * 100) / 100);
+  }
+
+  clearTip(): void {
+    this._tipAmount$.next(0);
   }
 
   get stampCardStatus$(): Observable<number> {
@@ -262,12 +309,15 @@ export class OrderService {
     this._freeItemsByProduct$.next(new Map());
     // this._freeDrinkCount$.next(0);
     this._stampCardStatusAfter$.next(0);
+    this._tipAmount$.next(0);
   }
 
   convertToPurchaseOrderDto(): PurchaseOrderDto {
+    const tip = this._tipAmount$.getValue();
     return {
       items: this._currentOrder$.getValue(),
-      returnedCupsCount: this._returnedCupsCount$.getValue()
+      returnedCupsCount: this._returnedCupsCount$.getValue(),
+      ...(tip > 0 && { tipAmount: tip })
     };
   }
 
@@ -297,7 +347,7 @@ export class OrderService {
       status: 'OFFEN',
       timeAgo: 'gerade eben',
       createdAt: new Date(),
-      total: this.currentTotalValue,
+      total: this.orderTotalWithTipValue,
       items: this.convertToOrderItems(orderDto.items),
       originalOrder: orderDto
     };

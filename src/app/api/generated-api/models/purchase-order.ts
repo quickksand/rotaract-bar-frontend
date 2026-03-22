@@ -13,4 +13,9 @@ export interface PurchaseOrder {
    * Number of cups returned with this order
    */
   returnedCupsCount?: number;
+
+  /**
+   * Optional tip amount in EUR
+   */
+  tipAmount?: number;
 }
