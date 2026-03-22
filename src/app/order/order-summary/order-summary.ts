@@ -54,14 +54,13 @@ export class OrderSummary {
       this.customTipInput = null;
     });
 
-    // Pfand-Spenden-Chip: Betrag aktualisieren wenn Guthaben sich ändert während Chip aktiv ist
-    this.orderService.creditBalance$.pipe(
+    // Pfand-Spenden-Chip: Betrag aktualisieren wenn sich spendabares Pfand ändert (Becher oder Bestellung)
+    this.orderService.donateablePfandAmount$.pipe(
       skip(1),
       takeUntilDestroyed()
-    ).subscribe(credit => {
-      if (this.activeTipChip === 'donate-pfand') {
-        this.orderService.setTip(credit);
-      }
+    ).subscribe(donatable => {
+          this.activeTipChip = null;
+          this.orderService.clearTip();
     });
   }
 
@@ -102,7 +101,7 @@ export class OrderSummary {
         this.orderService.setTip(this.roundFiveTip);
         break;
       case 'donate-pfand':
-        this.orderService.setTip(this.orderService.creditBalanceValue);
+        this.orderService.setTip(this.orderService.donateablePfandAmountValue);
         break;
     }
   }

@@ -97,14 +97,14 @@
 
 <!-- TRINKGELD-CHIPS -->
 @if(currentOrder$ | async; as currentOrder) {
-  <!--   Min eine Bestellposition ODER einen Becher zurück-->
-  @if(currentOrder.length > 0 || (orderService.creditBalance$ | async)! > 0 ) {
-    <div class="pt-2 pb-4">
+  <!--   Min eine Bestellposition ODER spendabares Pfand vorhanden -->
+  @if(currentOrder.length > 0 || (orderService.donateablePfandAmount$ | async)! > 0) {
+    <div class="pb-10">
       <p class="text-sm font-semibold text-brand-charcoal mb-3">Trinkgeld:</p>
       <div class="flex flex-wrap gap-2">
 
         <!-- Chip 1: Auf nächsten Euro -->
-        @if(roundEuroTip > 0) {
+        @if((orderService.currentTotalSum$ | async)! > 0 && roundEuroTip > 0) {
           <button
             (click)="onTipChipClick('round-euro')"
             class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors min-h-[44px]"
@@ -118,7 +118,8 @@
           </button>
         }
 
-        <!-- Chip 2: Auf nächsten 5er -->
+        <!-- Chip 2: Auf nächsten 5er (nur wenn Ziel über dem Euro-Ziel liegt, sonst Duplikat) -->
+        @if((orderService.currentTotalSum$ | async)! > 0 && roundFiveTarget > roundEuroTarget){
         <button
           (click)="onTipChipClick('round-five')"
           class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors min-h-[44px]"
@@ -130,9 +131,10 @@
           [class.border-gray-300]="activeTipChip !== 'round-five'">
           Auf {{ roundFiveTarget | currency:'EUR':'symbol':'1.2-2':'de' }}
         </button>
+        }
 
-        <!-- Chip 3: Pfand spenden (nur wenn Guthaben vorhanden) -->
-        @if((orderService.creditBalance$ | async)! > 0) {
+        <!-- Chip 3: Pfand spenden (nur wenn spendabares Pfand nach Verrechnung mit Bestellung übrig) -->
+        @if((orderService.donateablePfandAmount$ | async)! > 0) {
           <button
             (click)="onTipChipClick('donate-pfand')"
             class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors min-h-[44px]"
@@ -142,15 +144,18 @@
             [class.bg-white]="activeTipChip !== 'donate-pfand'"
             [class.text-brand-charcoal]="activeTipChip !== 'donate-pfand'"
             [class.border-gray-300]="activeTipChip !== 'donate-pfand'">
-            Pfand spenden ({{ orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }})
+            Pfand spenden ({{ orderService.donateablePfandAmount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }})
           </button>
         }
 
       </div>
 
       <!-- Eigenes Trinkgeld: Stepper (immer sichtbar) -->
-      <div class="mt-3 flex items-center gap-2">
-        <span class="text-sm text-gray-500 mr-1">Eigenes:</span>
+      <div class="mt-3 mb-1">
+      <span class="text-sm text-gray-500 mr-1">Eigenes:</span>
+      </div>
+      <div class="flex items-center gap-2">
+
 
         <button (click)="adjustCustomTip(-1)"
           [disabled]="(customTipInput ?? 0) <= 0"

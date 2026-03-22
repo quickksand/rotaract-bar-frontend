@@ -174,6 +174,16 @@ export class OrderService {
     return this._creditBalance$.asObservable();
   }
 
+  get donateablePfandAmount$(): Observable<number> {
+    return combineLatest([this._creditBalance$, this._currentDepositSum$]).pipe(
+      map(([credit, deposit]) => Math.max(0, credit - deposit))
+    );
+  }
+
+  get donateablePfandAmountValue(): number {
+    return Math.max(0, this._creditBalance$.getValue() - this._currentDepositSum$.getValue());
+  }
+
   get currentOrderSum$(): Observable<number> {
     return this._currentOrderSum$.asObservable();
   }
