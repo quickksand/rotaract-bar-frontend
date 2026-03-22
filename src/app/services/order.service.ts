@@ -159,10 +159,12 @@ export class OrderService {
       this._nextDrinkFree$.next(nextDrinkFree);
     });
 
-    // Trinkgeld zurücksetzen wenn Bestellung oder Becheranzahl sich ändert
+    // Trinkgeld zurücksetzen wenn sich etwas ändert, das den Gesamtbetrag beeinflusst
     this._currentOrder$.pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => this._tipAmount$.next(0));
     this._returnedCupsCount$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
+    this._stampCardInputStatus$.pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => this._tipAmount$.next(0));
   }
 
@@ -174,12 +176,12 @@ export class OrderService {
     return this._creditBalance$.asObservable();
   }
 
-  readonly donateablePfandAmount$ = combineLatest([this._creditBalance$, this._currentDepositSum$]).pipe(
-    map(([credit, deposit]) => Math.max(0, credit - deposit))
+  readonly donateablePfandAmount$ = this._currentTotalSum$.pipe(
+    map(total => Math.max(0, -total))
   );
 
   get donateablePfandAmountValue(): number {
-    return Math.max(0, this._creditBalance$.getValue() - this._currentDepositSum$.getValue());
+    return Math.max(0, -this._currentTotalSum$.getValue());
   }
 
   get currentOrderSum$(): Observable<number> {

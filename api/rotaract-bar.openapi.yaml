@@ -203,4 +203,8 @@ components:
           type: integer
           format: int32
           minimum: 0
-          description: "Number of cups returned with this order"
+        tipAmount:
+          type: number
+          format: double
+          minimum: 0
+          description: "Optional tip amount in EUR"
