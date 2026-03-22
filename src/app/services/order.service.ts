@@ -159,11 +159,11 @@ export class OrderService {
       this._nextDrinkFree$.next(nextDrinkFree);
     });
 
-    // Trinkgeld zurücksetzen wenn Bestellung sich ändert
-    this._currentOrder$.pipe(
-      skip(1),
-      takeUntilDestroyed()
-    ).subscribe(() => this._tipAmount$.next(0));
+    // Trinkgeld zurücksetzen wenn Bestellung oder Becheranzahl sich ändert
+    this._currentOrder$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
+    this._returnedCupsCount$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
   }
 
   get returnedCupsCount$(): Observable<number> {
@@ -174,11 +174,9 @@ export class OrderService {
     return this._creditBalance$.asObservable();
   }
 
-  get donateablePfandAmount$(): Observable<number> {
-    return combineLatest([this._creditBalance$, this._currentDepositSum$]).pipe(
-      map(([credit, deposit]) => Math.max(0, credit - deposit))
-    );
-  }
+  readonly donateablePfandAmount$ = combineLatest([this._creditBalance$, this._currentDepositSum$]).pipe(
+    map(([credit, deposit]) => Math.max(0, credit - deposit))
+  );
 
   get donateablePfandAmountValue(): number {
     return Math.max(0, this._creditBalance$.getValue() - this._currentDepositSum$.getValue());
@@ -204,11 +202,9 @@ export class OrderService {
     return this._tipAmount$.asObservable();
   }
 
-  get orderTotalWithTip$(): Observable<number> {
-    return combineLatest([this._currentTotalSum$, this._tipAmount$]).pipe(
-      map(([total, tip]) => total + tip)
-    );
-  }
+  readonly orderTotalWithTip$ = combineLatest([this._currentTotalSum$, this._tipAmount$]).pipe(
+    map(([total, tip]) => total + tip)
+  );
 
   get orderTotalWithTipValue(): number {
     return this._currentTotalSum$.getValue() + this._tipAmount$.getValue();

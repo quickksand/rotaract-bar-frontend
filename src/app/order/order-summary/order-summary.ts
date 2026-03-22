@@ -54,14 +54,6 @@ export class OrderSummary {
       this.customTipInput = null;
     });
 
-    // Pfand-Spenden-Chip: Betrag aktualisieren wenn sich spendabares Pfand ändert (Becher oder Bestellung)
-    this.orderService.donateablePfandAmount$.pipe(
-      skip(1),
-      takeUntilDestroyed()
-    ).subscribe(donatable => {
-          this.activeTipChip = null;
-          this.orderService.clearTip();
-    });
   }
 
   private recomputeTipOptions(total: number): void {
