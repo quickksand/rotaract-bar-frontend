@@ -13,6 +13,28 @@ paths:
       summary: Get all orders
       description: This endpoint gets all currently saved orders
       operationId: getOrders
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          description: "Filter orders by year (e.g. 2025)"
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: "Filter orders from this timestamp (inclusive)"
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: "Filter orders until this timestamp (inclusive)"
       responses:
         "200":
           description: Successful
@@ -98,6 +120,118 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ingredient'
+  /api/evaluation/summary:
+    get:
+      tags:
+        - evaluation-controller
+      summary: Get evaluation summary
+      description: Returns aggregated earnings, tip, and cup/deposit statistics for the given filter
+      operationId: getEvaluationSummary
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          description: "Filter by year (e.g. 2025)"
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: "Filter from this timestamp (inclusive)"
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: "Filter until this timestamp (inclusive)"
+        - name: startCups
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+          description: "Number of cups available at the start of the event"
+        - name: depositAmountPerCup
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+            default: 1.0
+          description: "Deposit amount per cup in EUR"
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationSummary"
+        "500":
+          description: Internal server error
+  /api/evaluation/top-products:
+    get:
+      tags:
+        - evaluation-controller
+      summary: Get top products by sales volume
+      description: Returns products ranked by quantity sold. Use sortOrder=desc for best sellers, asc for worst sellers.
+      operationId: getTopProducts
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          description: "Filter by year (e.g. 2025)"
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: "Filter from this timestamp (inclusive)"
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: "Filter until this timestamp (inclusive)"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+          description: "Maximum number of results to return"
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          description: "Sort order: desc = best sellers first, asc = worst sellers first"
+      responses:
+        "200":
+          description: Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductSalesEntry"
+        "500":
+          description: Internal server error
   /api/orders/{id}:
     get:
       tags:
@@ -170,6 +304,9 @@ components:
             type: integer
             format: int64
           description: "List of ingredient IDs for this product"
+        requiresDeposit:
+          type: boolean
+          description: "Whether this product requires a deposit token (Pfand)"
       required:
         - id
         - name
@@ -208,3 +345,73 @@ components:
           format: double
           minimum: 0
           description: "Optional tip amount in EUR"
+        tokensIssued:
+          type: integer
+          format: int32
+          minimum: 0
+          description: "Number of new deposit tokens issued with this order"
+    EvaluationSummary:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+          format: double
+          description: "Sum of (product price × quantity) across all matched orders"
+        totalTips:
+          type: number
+          format: double
+          description: "Sum of tip amounts across all matched orders"
+        expectedCashInRegister:
+          type: number
+          format: double
+          description: "totalRevenue + totalTips + (cupsIssued - cupsReturned) × depositAmountPerCup"
+        depositAmountPerCup:
+          type: number
+          format: double
+          description: "Deposit amount per cup used in the calculation"
+        totalCupsIssued:
+          type: integer
+          format: int32
+          description: "Sum of tokensIssued across all matched orders"
+        totalCupsReturned:
+          type: integer
+          format: int32
+          description: "Sum of returnedCupsCount across all matched orders"
+        cupsOutstanding:
+          type: integer
+          format: int32
+          description: "Cups currently with customers: totalCupsIssued - totalCupsReturned"
+        startCups:
+          type: integer
+          format: int32
+          description: "Start cups as provided in the request parameter"
+        orderCount:
+          type: integer
+          format: int32
+          description: "Total number of orders in the filtered result"
+    ProductSalesEntry:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        category:
+          type: string
+          enum:
+            - DRINKS
+            - BEER_WINE_NONALC
+            - SHOTS
+        totalQuantitySold:
+          type: integer
+          format: int32
+          description: "Total units sold across all matched orders"
+        totalRevenue:
+          type: number
+          format: double
+          description: "Total revenue from this product: price × totalQuantitySold"
+        rank:
+          type: integer
+          format: int32
+          description: "Rank by sales volume (1 = highest)"

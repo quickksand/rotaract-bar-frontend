@@ -11,11 +11,29 @@ import {RequestBuilder} from '../../request-builder';
 import {PurchaseOrder} from '../../models/purchase-order';
 
 export interface GetOrders$Params {
+
+/**
+ * Filter orders by year (e.g. 2025)
+ */
+  year?: number;
+
+/**
+ * Filter orders from this timestamp (inclusive)
+ */
+  from?: string;
+
+/**
+ * Filter orders until this timestamp (inclusive)
+ */
+  to?: string;
 }
 
 export function getOrders(http: HttpClient, rootUrl: string, params?: GetOrders$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<PurchaseOrder>>> {
   const rb = new RequestBuilder(rootUrl, getOrders.PATH, 'get');
   if (params) {
+    rb.query('year', params.year, {});
+    rb.query('from', params.from, {});
+    rb.query('to', params.to, {});
   }
 
   return http.request(

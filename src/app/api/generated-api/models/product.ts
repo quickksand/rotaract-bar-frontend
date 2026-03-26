@@ -16,4 +16,9 @@ export interface Product {
   ingredientIds?: Array<number>;
   name: string;
   price: number;
+
+  /**
+   * Whether this product requires a deposit token (Pfand)
+   */
+  requiresDeposit?: boolean;
 }

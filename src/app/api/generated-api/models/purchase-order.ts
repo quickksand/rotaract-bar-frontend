@@ -14,4 +14,9 @@ export interface PurchaseOrder {
    * Optional tip amount in EUR
    */
   tipAmount?: number;
+
+  /**
+   * Number of new deposit tokens issued with this order
+   */
+  tokensIssued?: number;
 }

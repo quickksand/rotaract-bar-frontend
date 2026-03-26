@@ -1,0 +1,79 @@
+@if (vm$ | async; as vm) {
+  <div class="h-full overflow-y-auto bg-gray-50">
+    <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+      <!-- Filter-Leiste -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 flex flex-wrap gap-4 items-center">
+
+        <!-- Jahr-Filter -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-sm font-semibold text-gray-600">Jahr:</span>
+          <button
+            (click)="selectYear(null)"
+            [class.bg-rotaract-cranberry]="vm.selectedYear === null"
+            [class.text-white]="vm.selectedYear === null"
+            [class.bg-gray-100]="vm.selectedYear !== null"
+            [class.text-gray-700]="vm.selectedYear !== null"
+            class="px-3 py-1 rounded-full text-sm font-semibold transition-colors">
+            Alle
+          </button>
+          @for (year of vm.availableYears; track year) {
+            <button
+              (click)="selectYear(year)"
+              [class.bg-rotaract-cranberry]="vm.selectedYear === year"
+              [class.text-white]="vm.selectedYear === year"
+              [class.bg-gray-100]="vm.selectedYear !== year"
+              [class.text-gray-700]="vm.selectedYear !== year"
+              class="px-3 py-1 rounded-full text-sm font-semibold transition-colors">
+              {{ year }}
+            </button>
+          }
+        </div>
+
+        <!-- Trennlinie + Tag-Filter (nur wenn 2+ Tage vorhanden) -->
+        @if (vm.availableDays.length >= 2) {
+          <div class="w-px h-6 bg-gray-200"></div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm font-semibold text-gray-600">Tag:</span>
+            <button
+              (click)="selectDay(null)"
+              [class.bg-rotaract-cranberry]="vm.selectedDay === null"
+              [class.text-white]="vm.selectedDay === null"
+              [class.bg-gray-100]="vm.selectedDay !== null"
+              [class.text-gray-700]="vm.selectedDay !== null"
+              class="px-3 py-1 rounded-full text-sm font-semibold transition-colors">
+              Alle
+            </button>
+            @for (day of vm.availableDays; track day; let i = $index) {
+              <button
+                (click)="selectDay(i + 1)"
+                [class.bg-rotaract-cranberry]="vm.selectedDay === i + 1"
+                [class.text-white]="vm.selectedDay === i + 1"
+                [class.bg-gray-100]="vm.selectedDay !== i + 1"
+                [class.text-gray-700]="vm.selectedDay !== i + 1"
+                class="px-3 py-1 rounded-full text-sm font-semibold transition-colors"
+                [title]="day.toLocaleDateString('de-DE')">
+                Tag {{ i + 1 }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Kein Inhalt -->
+      @if ((vm.summary.orderCount ?? 0) === 0) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-12 text-center">
+          <div class="text-4xl mb-3">📭</div>
+          <div class="text-gray-500 font-medium">Keine Bestelldaten für den gewählten Zeitraum</div>
+        </div>
+      } @else {
+        <!-- KPI-Karten -->
+        <app-kpi-cards [summary]="vm.summary" />
+
+        <!-- Drink-Ranking -->
+        <app-drink-ranking [topProducts]="vm.topProducts" />
+      }
+
+    </div>
+  </div>
+}

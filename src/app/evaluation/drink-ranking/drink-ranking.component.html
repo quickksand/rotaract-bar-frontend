@@ -1,0 +1,72 @@
+@if (topProducts.length === 0) {
+  <div class="text-gray-400 text-sm text-center py-8">Keine Bestelldaten vorhanden</div>
+} @else {
+
+  <!-- Tabelle -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+    <div class="bg-rotaract-cranberry px-4 py-2 text-white text-sm font-semibold">
+      🏆 Drink-Ranking
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+          <tr>
+            <th class="px-4 py-3 text-left w-12">#</th>
+            <th class="px-4 py-3 text-left">Drink</th>
+            <th class="px-4 py-3 text-left">Kategorie</th>
+            <th class="px-4 py-3 text-right">Stück</th>
+            <th class="px-4 py-3 text-right">Umsatz</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of visibleProducts; track entry.productId) {
+            <tr class="border-t border-gray-50 hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 text-gray-400 font-mono">{{ entry.rank ?? '–' }}</td>
+              <td class="px-4 py-3 font-medium text-gray-800">{{ entry.productName }}</td>
+              <td class="px-4 py-3 text-gray-500">{{ categoryLabel(entry.category) }}</td>
+              <td class="px-4 py-3 text-right font-semibold text-gray-800">{{ entry.totalQuantitySold ?? 0 }}</td>
+              <td class="px-4 py-3 text-right text-gray-700">
+                {{ (entry.totalRevenue ?? 0) | currency:'EUR':'symbol':'1.2-2':'de' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (topProducts.length > 10) {
+      <div class="px-4 py-3 border-t border-gray-100 text-center">
+        <button
+          (click)="showAll = !showAll"
+          class="text-sm text-rotaract-cranberry font-semibold hover:underline">
+          {{ showAll ? 'Weniger anzeigen' : 'Alle ' + topProducts.length + ' Drinks anzeigen' }}
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Balkendiagramm -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="bg-rotaract-cranberry px-4 py-2 text-white text-sm font-semibold">
+      📊 Verkäufe nach Drink
+    </div>
+    <div class="p-4 space-y-3">
+      @for (entry of visibleProducts; track entry.productId) {
+        <div class="flex items-center gap-3">
+          <div class="w-36 text-sm text-gray-700 truncate shrink-0" [title]="entry.productName ?? ''">
+            {{ entry.productName }}
+          </div>
+          <div class="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+            <div
+              class="h-full bg-rotaract-cranberry rounded-full transition-all duration-500"
+              [style.width.%]="entry.relativeShare * 100">
+            </div>
+          </div>
+          <div class="w-10 text-right text-sm font-semibold text-gray-700 shrink-0">
+            {{ entry.totalQuantitySold ?? 0 }}
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+}

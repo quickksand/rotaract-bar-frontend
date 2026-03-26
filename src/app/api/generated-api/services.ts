@@ -5,3 +5,4 @@
 export { PurchaseOrderControllerService } from './services/purchase-order-controller.service';
 export { ProductControllerService } from './services/product-controller.service';
 export { IngredientControllerService } from './services/ingredient-controller.service';
+export { EvaluationControllerService } from './services/evaluation-controller.service';
