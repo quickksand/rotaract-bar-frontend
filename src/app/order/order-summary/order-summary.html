@@ -1,8 +1,8 @@
 <h1 class="text-2xl font-bold pb-6">📋 BESTELLUNG</h1>
 
 @if((orderService.newTokensNeeded$ | async)! > 0) {
-  <div class="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 border-2 border-amber-500 text-amber-800 font-bold text-sm">
-    ⚙️
+  <div class="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-200 border-2 border-emerald-600 text-emerald-800 font-bold text-sm">
+    🪙
     {{ (orderService.newTokensNeeded$ | async) }}
     {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
   </div>
@@ -141,7 +141,7 @@
         </button>
         }
 
-        <!-- Chip 3: Pfand spenden (nur wenn spendabares Pfand nach Verrechnung mit Bestellung übrig) -->
+        <!-- Chip 3: Pfand spenden (nur wenn spendbares Pfand nach Verrechnung mit Bestellung übrig) -->
         @if((orderService.donateablePfandAmount$ | async)! > 0) {
           <button
             (click)="onTipChipClick('donate-pfand')"
@@ -163,7 +163,6 @@
 <!--      <span class="text-sm text-gray-500 mr-1">Eigenes:</span>-->
 <!--      </div>-->
       <div class="mt-3 flex items-center gap-2">
-
 
         <button (click)="adjustCustomTip(-1)"
           [disabled]="(customTipInput ?? 0) <= 0"
