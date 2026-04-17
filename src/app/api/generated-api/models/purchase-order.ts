@@ -8,10 +8,6 @@ export interface PurchaseOrder {
   id?: number;
   items?: Array<OrderedItem>;
   orderedAt?: string;
-
-  /**
-   * Number of cups returned with this order
-   */
   returnedCupsCount?: number;
 
   /**

@@ -180,6 +180,23 @@ export class OrderService {
     map(total => Math.max(0, -total))
   );
 
+  readonly newTokensNeeded$ = combineLatest([
+    this._currentOrder$,
+    this._productService.products$,
+    this._returnedCupsCount$
+  ]).pipe(
+    map(([order, products, returnedCups]) => {
+      let depositCupsCount = 0;
+      order.forEach(item => {
+        const product = products?.find(p => p.id === item.productId);
+        if (product && product.category !== 'SHOTS') {
+          depositCupsCount += item.quantity!;
+        }
+      });
+      return Math.max(0, depositCupsCount - returnedCups);
+    })
+  );
+
   get donateablePfandAmountValue(): number {
     return Math.max(0, -this._currentTotalSum$.getValue());
   }
