@@ -1,14 +1,6 @@
-<h1 class="text-2xl font-bold pb-6">📋 BESTELLUNG</h1>
+<h1 class="text-xl font-bold pb-6">📋 BESTELLUNG</h1>
 
-@if((orderService.newTokensNeeded$ | async)! > 0) {
-  <div class="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-200 border-2 border-emerald-600 text-emerald-800 font-bold text-sm">
-    🪙
-    {{ (orderService.newTokensNeeded$ | async) }}
-    {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
-  </div>
-}
-
-<div class="mb-6">
+<div class="mb-0">
   @if(products$ | async) {
     @if(currentOrder$ | async; as currentOrder ) {
       <table class="w-full">
@@ -42,59 +34,73 @@
             </tr>
           }
 
+        <!-- Block: Zwischensumme -->
         @if(currentOrder.length > 0){
-          <!-- Zwischensummen -->
-          <tr class="border-0">
-            <td colspan="2" class="py-2 px-2 text-brand-charcoal">Zwischensumme:</td>
-            <td class="py-2 px-2 text-right text-brand-charcoal">
+          <tr class="border-t-1 border-gray-200">
+            <td colspan="2" class="pt-4 pb-2 px-2 font-semibold text-brand-charcoal">Zwischensumme</td>
+            <td class="pt-4 pb-2 px-2 text-right font-semibold text-brand-charcoal">
               {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
             </td>
           </tr>
         }
 
+          <!-- Block: Rabatte -->
           @if((this.orderService.freeDrinkDiscount$ | async)! > 0) {
             <tr class="border-0">
-              <td colspan="2" class="py-2 px-2 text-green-600">Stempelkarte:</td>
-              <td class="py-2 px-2 text-right text-green-600">
-                -{{ this.orderService.freeDrinkDiscount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              <td colspan="3" class="pt-3 pb-1 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Rabatte</td>
+            </tr>
+            <tr class="border-0">
+              <td colspan="2" class="py-1 px-2 pl-4 text-green-600">Stempelkarte</td>
+              <td class="py-1 px-2 text-right text-green-600">
+                −{{ this.orderService.freeDrinkDiscount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
               </td>
+            </tr>
+          }
+
+          <!-- Block: Pfand -->
+          @if((this.orderService.currentDepositSum$ | async)! > 0 || (this.orderService.creditBalance$ | async)! > 0) {
+            <tr class="border-0">
+              <td colspan="3" class="pt-3 pb-1 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Pfand</td>
             </tr>
           }
 
           @if((this.orderService.currentDepositSum$ | async)! > 0) {
             <tr class="border-0">
-              <td colspan="2" class="py-2 px-2 text-brand-charcoal">Pfand:</td>
-              <td class="py-2 px-2 text-right text-brand-charcoal">
-                {{ this.orderService.currentDepositSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              <td colspan="2" class="py-1 px-2 pl-4 text-brand-charcoal">Pfand</td>
+              <td class="py-1 px-2 text-right text-brand-charcoal">
+                +{{ this.orderService.currentDepositSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
               </td>
             </tr>
           }
 
           @if((this.orderService.creditBalance$ | async)! > 0) {
             <tr class="border-0">
-              <td colspan="2" class="py-2 px-2 text-green-600">Guthaben:</td>
-              <td class="py-2 px-2 text-right text-green-600">
-                -{{ this.orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              <td colspan="2" class="py-1 px-2 pl-4 text-green-600">zurück</td>
+              <td class="py-1 px-2 text-right text-green-600">
+                −{{ this.orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
               </td>
             </tr>
           }
 
-          @if((this.orderService.tipAmount$ | async)! > 0) {
-            <tr class="border-0">
-              <td colspan="2" class="py-2 px-2 text-rotaract-cranberry font-medium">Trinkgeld:</td>
-              <td class="py-2 px-2 text-right text-rotaract-cranberry font-medium">
-                +{{ this.orderService.tipAmount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-              </td>
-            </tr>
-          }
+        @if((this.orderService.currentDepositSum$ | async)! > 0 && (orderService.newTokensNeeded$ | async)! > 0) {
+          <tr class="border-0">
+            <td colspan="3" class="pb-2 pl-4">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
+                🪙
+                {{ (orderService.newTokensNeeded$ | async) }}
+                {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
+              </span>
+            </td>
+          </tr>
+        }
 
-        <!-- Finaler Total -->
-        <tr class="border-t-2 border-gray-200">
-          <td colspan="2" class="py-4 px-2 font-bold text-brand-charcoal text-lg">GESAMT:</td>
+        <!-- GESAMT (ohne Trinkgeld) -->
+        <tr class="border-t-2 border-gray-300">
+          <td colspan="2" class="py-4 px-2 font-bold text-brand-charcoal text-lg">GESAMT</td>
           <td class="py-4 px-2 text-right font-bold text-xl"
-              [class.text-rotaract-cranberry]="(this.orderService.orderTotalWithTip$ | async)! >= 0"
-              [class.text-green-600]="(this.orderService.orderTotalWithTip$ | async)! < 0">
-            {{ this.orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              [class.text-rotaract-cranberry]="(this.orderService.currentTotalSum$ | async)! >= 0"
+              [class.text-green-600]="(this.orderService.currentTotalSum$ | async)! < 0">
+            {{ this.orderService.currentTotalSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
           </td>
         </tr>
         </tbody>
@@ -103,15 +109,24 @@
   }
 </div>
 
-<!-- TRINKGELD-CHIPS -->
+<!-- TRINKGELD & ZU ZAHLEN -->
 @if(currentOrder$ | async; as currentOrder) {
-  <!--   Min eine Bestellposition ODER spendabares Pfand vorhanden -->
   @if(currentOrder.length > 0 || (orderService.donateablePfandAmount$ | async)! > 0) {
-    <div class="pb-8">
-      <p class="text-sm font-semibold text-brand-charcoal mb-3">Trinkgeld:</p>
-      <div class="flex flex-wrap gap-2">
+    <div class="border-t-2 border-dashed border-gray-300 pt-4 pb-2">
 
-        <!-- Chip 1: Auf nächsten Euro -->
+      <!-- Trinkgeld Zeile -->
+      <div class="flex justify-between items-center px-2 mb-3">
+        <span class="text-sm font-medium text-brand-charcoal">Trinkgeld</span>
+        <span class="text-sm font-medium"
+              [class.text-rotaract-cranberry]="(orderService.tipAmount$ | async)! > 0"
+              [class.text-gray-400]="(orderService.tipAmount$ | async)! === 0">
+          +{{ this.orderService.tipAmount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+        </span>
+      </div>
+
+      <!-- Tip Chips -->
+      <div class="flex flex-wrap gap-2 mb-3">
+
         @if((orderService.currentTotalSum$ | async)! > 0 && roundEuroTip > 0) {
           <button
             (click)="onTipChipClick('round-euro')"
@@ -126,22 +141,20 @@
           </button>
         }
 
-        <!-- Chip 2: Auf nächsten 5er (nur wenn Ziel über dem Euro-Ziel liegt, sonst Duplikat) -->
         @if((orderService.currentTotalSum$ | async)! > 0 && roundFiveTarget > roundEuroTarget){
-        <button
-          (click)="onTipChipClick('round-five')"
-          class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors min-h-[44px]"
-          [class.bg-rotaract-cranberry]="activeTipChip === 'round-five'"
-          [class.text-white]="activeTipChip === 'round-five'"
-          [class.border-rotaract-cranberry]="activeTipChip === 'round-five'"
-          [class.bg-white]="activeTipChip !== 'round-five'"
-          [class.text-brand-charcoal]="activeTipChip !== 'round-five'"
-          [class.border-gray-300]="activeTipChip !== 'round-five'">
-          Auf {{ roundFiveTarget | currency:'EUR':'symbol':'1.2-2':'de' }}
-        </button>
+          <button
+            (click)="onTipChipClick('round-five')"
+            class="px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors min-h-[44px]"
+            [class.bg-rotaract-cranberry]="activeTipChip === 'round-five'"
+            [class.text-white]="activeTipChip === 'round-five'"
+            [class.border-rotaract-cranberry]="activeTipChip === 'round-five'"
+            [class.bg-white]="activeTipChip !== 'round-five'"
+            [class.text-brand-charcoal]="activeTipChip !== 'round-five'"
+            [class.border-gray-300]="activeTipChip !== 'round-five'">
+            Auf {{ roundFiveTarget | currency:'EUR':'symbol':'1.2-2':'de' }}
+          </button>
         }
 
-        <!-- Chip 3: Pfand spenden (nur wenn spendbares Pfand nach Verrechnung mit Bestellung übrig) -->
         @if((orderService.donateablePfandAmount$ | async)! > 0) {
           <button
             (click)="onTipChipClick('donate-pfand')"
@@ -158,12 +171,8 @@
 
       </div>
 
-      <!-- Eigenes Trinkgeld: Stepper (immer sichtbar) -->
-<!--      <div class="mt-3 mb-1">-->
-<!--      <span class="text-sm text-gray-500 mr-1">Eigenes:</span>-->
-<!--      </div>-->
-      <div class="mt-3 flex items-center gap-2">
-
+      <!-- Eigenes Trinkgeld: Stepper -->
+      <div class="flex items-center gap-2 mb-4">
         <button (click)="adjustCustomTip(-1)"
           [disabled]="(customTipInput ?? 0) <= 0"
           class="w-11 h-11 rounded-full border-2 border-gray-300 text-xl font-bold text-brand-charcoal flex items-center justify-center active:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed">−</button>
@@ -183,6 +192,18 @@
           class="w-11 h-11 rounded-full border-2 border-rotaract-cranberry text-xl font-bold text-rotaract-cranberry flex items-center justify-center active:bg-red-50">+</button>
       </div>
 
+<!--      Wenn Trinkgeld gegeben wurde, Anzeige des neuen Gesamtbetrags mit Trinkgeld-->
+      @if ((orderService.tipAmount$ | async)! > 0) {
+      <!-- ZU ZAHLEN -->
+      <div class="border-t-2 border-gray-300 pt-3 flex justify-between items-center px-2 pb-4">
+        <span class="font-bold text-brand-charcoal text-lg">ZU ZAHLEN</span>
+        <span class="font-bold text-xl"
+              [class.text-rotaract-cranberry]="(this.orderService.orderTotalWithTip$ | async)! >= 0"
+              [class.text-green-600]="(this.orderService.orderTotalWithTip$ | async)! < 0">
+          {{ this.orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+        </span>
+      </div>
+      }
     </div>
   }
 }
