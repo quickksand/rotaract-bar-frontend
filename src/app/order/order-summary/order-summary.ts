@@ -28,6 +28,7 @@ export class OrderSummary {
 
   protected activeTipChip: TipChip | null = null;
   protected customTipInput: number | null = null;
+  protected detailsExpanded = false;
 
   // Berechnete Zielbeträge für die Chips
   protected roundEuroTarget = 0;

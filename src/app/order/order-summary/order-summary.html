@@ -34,67 +34,68 @@
             </tr>
           }
 
-        <!-- Block: Zwischensumme -->
-        @if(currentOrder.length > 0){
-          <tr class="border-t-1 border-gray-200">
-            <td colspan="2" class="pt-4 pb-2 px-2 font-semibold text-brand-charcoal">Zwischensumme</td>
-            <td class="pt-4 pb-2 px-2 text-right font-semibold text-brand-charcoal">
-              {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+        <!-- Aufklappbare Details (Rechenweg) -->
+        @if(currentOrder.length > 0 && ((this.orderService.freeDrinkDiscount$ | async)! > 0 || (this.orderService.currentDepositSum$ | async)! > 0 || (this.orderService.creditBalance$ | async)! > 0)) {
+          <tr class="border-t border-gray-200">
+            <td colspan="3" class="py-2 px-2">
+              <button (click)="detailsExpanded = !detailsExpanded"
+                      class="text-xs text-gray-400 hover:text-gray-600 transition-colors flex items-center gap-1">
+                <span class="inline-block transition-transform duration-200"
+                      [class.rotate-90]="detailsExpanded">▸</span>
+                Details
+                <span class="text-gray-300">—</span>
+                @if((this.orderService.freeDrinkDiscount$ | async)! > 0 && (this.orderService.currentDepositSum$ | async)! > 0) {
+                  <span>Stempelkarte & Pfand</span>
+                } @else if((this.orderService.freeDrinkDiscount$ | async)! > 0) {
+                  <span>Stempelkarte</span>
+                } @else {
+                  <span>Pfand</span>
+                }
+              </button>
             </td>
           </tr>
+
+          @if(detailsExpanded) {
+            <!-- Zwischensumme -->
+            <tr class="border-0">
+              <td colspan="2" class="py-1 px-2 pl-4 text-sm text-gray-500">Zwischensumme</td>
+              <td class="py-1 px-2 text-right text-sm text-gray-500">
+                {{ this.orderService.currentOrderSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+              </td>
+            </tr>
+
+            <!-- Rabatte -->
+            @if((this.orderService.freeDrinkDiscount$ | async)! > 0) {
+              <tr class="border-0">
+                <td colspan="2" class="py-1 px-2 pl-4 text-sm text-green-600">Stempelkarte</td>
+                <td class="py-1 px-2 text-right text-sm text-green-600">
+                  −{{ this.orderService.freeDrinkDiscount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+                </td>
+              </tr>
+            }
+
+            <!-- Pfand -->
+            @if((this.orderService.currentDepositSum$ | async)! > 0) {
+              <tr class="border-0">
+                <td colspan="2" class="py-1 px-2 pl-4 text-sm text-gray-500">Pfand</td>
+                <td class="py-1 px-2 text-right text-sm text-gray-500">
+                  +{{ this.orderService.currentDepositSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+                </td>
+              </tr>
+            }
+
+            @if((this.orderService.creditBalance$ | async)! > 0) {
+              <tr class="border-0">
+                <td colspan="2" class="py-1 px-2 pl-4 text-sm text-green-600">Pfand zurück</td>
+                <td class="py-1 px-2 text-right text-sm text-green-600">
+                  −{{ this.orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+                </td>
+              </tr>
+            }
+          }
         }
 
-          <!-- Block: Rabatte -->
-          @if((this.orderService.freeDrinkDiscount$ | async)! > 0) {
-            <tr class="border-0">
-              <td colspan="3" class="pt-3 pb-1 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Rabatte</td>
-            </tr>
-            <tr class="border-0">
-              <td colspan="2" class="py-1 px-2 pl-4 text-green-600">Stempelkarte</td>
-              <td class="py-1 px-2 text-right text-green-600">
-                −{{ this.orderService.freeDrinkDiscount$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-              </td>
-            </tr>
-          }
-
-          <!-- Block: Pfand -->
-          @if((this.orderService.currentDepositSum$ | async)! > 0 || (this.orderService.creditBalance$ | async)! > 0) {
-            <tr class="border-0">
-              <td colspan="3" class="pt-3 pb-1 px-2 text-xs font-bold uppercase tracking-wider text-gray-400">Pfand</td>
-            </tr>
-          }
-
-          @if((this.orderService.currentDepositSum$ | async)! > 0) {
-            <tr class="border-0">
-              <td colspan="2" class="py-1 px-2 pl-4 text-brand-charcoal">Pfand</td>
-              <td class="py-1 px-2 text-right text-brand-charcoal">
-                +{{ this.orderService.currentDepositSum$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-              </td>
-            </tr>
-          }
-
-          @if((this.orderService.creditBalance$ | async)! > 0) {
-            <tr class="border-0">
-              <td colspan="2" class="py-1 px-2 pl-4 text-green-600">zurück</td>
-              <td class="py-1 px-2 text-right text-green-600">
-                −{{ this.orderService.creditBalance$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-              </td>
-            </tr>
-          }
-
-        @if((this.orderService.currentDepositSum$ | async)! > 0 && (orderService.newTokensNeeded$ | async)! > 0) {
-          <tr class="border-0">
-            <td colspan="3" class="pb-2 pl-4">
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
-                🪙
-                {{ (orderService.newTokensNeeded$ | async) }}
-                {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
-              </span>
-            </td>
-          </tr>
-        }
-
-        <!-- GESAMT (ohne Trinkgeld) -->
+        <!-- GESAMT (ohne Trinkgeld) — immer prominent sichtbar -->
         <tr class="border-t-2 border-gray-300">
           <td colspan="2" class="py-4 px-2 font-bold text-brand-charcoal text-lg">GESAMT</td>
           <td class="py-4 px-2 text-right font-bold text-xl"
@@ -108,6 +109,17 @@
     }
   }
 </div>
+
+<!-- Pfandmarken-Badge — Handlungsanweisung nach dem Kassieren -->
+@if((this.orderService.currentDepositSum$ | async)! > 0 && (orderService.newTokensNeeded$ | async)! > 0) {
+  <div class="flex pt-1 pb-4 justify-center">
+    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
+      🪙
+      {{ (orderService.newTokensNeeded$ | async) }}
+      {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
+    </span>
+  </div>
+}
 
 <!-- TRINKGELD & ZU ZAHLEN -->
 @if(currentOrder$ | async; as currentOrder) {
@@ -192,17 +204,16 @@
           class="w-11 h-11 rounded-full border-2 border-rotaract-cranberry text-xl font-bold text-rotaract-cranberry flex items-center justify-center active:bg-red-50">+</button>
       </div>
 
-<!--      Wenn Trinkgeld gegeben wurde, Anzeige des neuen Gesamtbetrags mit Trinkgeld-->
+      <!-- ZU ZAHLEN — nur bei Trinkgeld -->
       @if ((orderService.tipAmount$ | async)! > 0) {
-      <!-- ZU ZAHLEN -->
-      <div class="border-t-2 border-gray-300 pt-3 flex justify-between items-center px-2 pb-4">
-        <span class="font-bold text-brand-charcoal text-lg">ZU ZAHLEN</span>
-        <span class="font-bold text-xl"
-              [class.text-rotaract-cranberry]="(this.orderService.orderTotalWithTip$ | async)! >= 0"
-              [class.text-green-600]="(this.orderService.orderTotalWithTip$ | async)! < 0">
-          {{ this.orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
-        </span>
-      </div>
+        <div class="border-t-2 border-gray-300 pt-3 flex justify-between items-center px-2 pb-4">
+          <span class="font-bold text-brand-charcoal text-lg">ZU ZAHLEN</span>
+          <span class="font-bold text-xl"
+                [class.text-rotaract-cranberry]="(this.orderService.orderTotalWithTip$ | async)! >= 0"
+                [class.text-green-600]="(this.orderService.orderTotalWithTip$ | async)! < 0">
+            {{ this.orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+          </span>
+        </div>
       }
     </div>
   }
