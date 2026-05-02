@@ -1,19 +1,18 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
   <main class="lg:col-span-8 bg-gray-50 p-6 overflow-y-auto -mb-6">
 
-    @if(products$ | async; as products) {
+    @if(products$ | async) {
 
       <app-deposit-section></app-deposit-section>
       <app-stamp-card-section></app-stamp-card-section>
 
       @if(categories$ | async; as categories){
         @for(category of categories; track category){
-
           <app-product-category-section
             [categoryTitle]="category | categoryDisplay"
             [products]="productService.getProductsByCategory(category)"
+            [longPressEnabled]="category === 'SHOTS'"
             class="col-span-8"/>
-
         }
       }
     } @else {

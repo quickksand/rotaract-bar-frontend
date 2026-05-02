@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>{{ data.product.name }}</h2>
+<p class="text-sm text-gray-500 px-6 -mt-3">{{ data.product.price | currency:'EUR':'symbol':'1.2-2':'de' }} / Stück</p>
+
+<mat-dialog-content style="overflow: hidden">
+
+  <!-- Mengen-Display -->
+  <div class="flex items-center justify-center gap-4 my-4">
+    <button mat-stroked-button (click)="setQuantity(quantity - 1)" [disabled]="quantity <= 1">−</button>
+    <span class="text-5xl font-bold w-20 text-center">{{ quantity }}</span>
+    <button mat-stroked-button (click)="setQuantity(quantity + 1)" [disabled]="quantity >= 99">+</button>
+  </div>
+
+  <!-- Schnellwahl -->
+  <div class="flex flex-wrap justify-center gap-2 mb-4">
+    @for (pick of quickPicks; track pick) {
+      <button mat-stroked-button (click)="setQuantity(pick)"
+              [class.!bg-rotaract-cranberry]="quantity === pick"
+              [class.!text-white]="quantity === pick">
+        {{ pick }}
+      </button>
+    }
+  </div>
+
+<!--  <div>-->
+  <!--  Option Flasche verkaufen ergänzen-->
+<!--  </div>-->
+
+  <button mat-stroked-button (click)="clearQuantity()">C</button>
+
+
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Abbrechen</button>
+  <button mat-flat-button class="!bg-rotaract-cranberry !text-white" (click)="confirm()">
+    Hinzufügen
+  </button>
+</mat-dialog-actions>

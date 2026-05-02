@@ -3,7 +3,7 @@
           [class.!border-l-4]="quantity() > 0"
           [class.!border-l-rotaract-cranberry]="quantity() > 0"
 
-          (click)="orderService.addToOrder(product().id!)">
+          (click)="onCardClick()">
 
   <mat-card-header>
     <mat-card-title class="!line-clamp-1 !leading-tight">{{product().name}}</mat-card-title>
@@ -17,39 +17,4 @@
     }
 
   </mat-card-header>
-
-<!--  <mat-card-content class="mt-4">-->
-
-<!--    @if(orderService.getQuantity(product().id!) === 0) {-->
-<!--      <button-->
-<!--        class="w-full bg-white h-14 py-4 rounded-lg font-bold border-1 border-rotaract-cranberry text-lg hover:bg-rotaract-cranberry/90 transition-colors"-->
-<!--        (click)="orderService.addToOrder(product().id!)">-->
-<!--        + HINZUFÜGEN-->
-<!--      </button>-->
-<!--    }@else {-->
-<!--      <div class="flex items-center justify-between gap-3">-->
-
-<!--        <button-->
-<!--          class="bg-white border-1 border-rotaract-cranberry min-w-[3rem] h-14 rounded-lg font-bold text-xl hover:bg-rotary-azure/90 transition-colors"-->
-<!--          (click)="orderService.removeFromOrder(product().id!)">-->
-<!--          −-->
-<!--        </button>-->
-
-<!--        &lt;!&ndash; Quantity Display (groß und prominent) &ndash;&gt;-->
-<!--        <span class="text-3xl font-bold text-rotaract-cranberry min-w-[2rem] text-center"-->
-<!--              (click)="orderService.addToOrder(product().id!)">-->
-<!--                              {{ orderService.getQuantity(product().id!) }}-->
-<!--                            </span>-->
-
-<!--        &lt;!&ndash; Plus Button &ndash;&gt;-->
-<!--        <button-->
-<!--          class="bg-rotaract-cranberry text-white min-w-[3rem] h-14 rounded-lg font-bold text-xl hover:bg-rotaract-cranberry/90 transition-colors"-->
-<!--          (click)="orderService.addToOrder(product().id!)">-->
-<!--          +-->
-<!--        </button>-->
-
-<!--      </div>-->
-<!--    }-->
-
-<!--  </mat-card-content>-->
 </mat-card>

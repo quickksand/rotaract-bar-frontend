@@ -15,6 +15,7 @@ export class ProductCategorySection {
 
   categoryTitle = input.required<String>();
   products = input.required<Product[]>();
+  longPressEnabled = input.required<Boolean>();
 
   @ViewChild('carousel') carousel!: ElementRef;
 

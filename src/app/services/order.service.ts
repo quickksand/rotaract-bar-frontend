@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {PurchaseOrderDto} from '../api/api-client/dtos';
+import {PurchaseOrder} from '../api/generated-api/models';
 import {BehaviorSubject, combineLatest, combineLatestWith, map, Observable, skip} from 'rxjs';
 import {ProductsService} from './products.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
@@ -15,7 +15,7 @@ interface PrepOrder {
   createdAt: Date;
   total: number;
   items: PrepOrderItem[];
-  originalOrder: PurchaseOrderDto;
+  originalOrder: PurchaseOrder;
 }
 
 interface PrepOrderItem {
@@ -279,19 +279,21 @@ export class OrderService {
     }
   }
 
-  addToOrder(id: number) {
+  addToOrder(id: number, quantity?: number) {
     const currentOrder = this._currentOrder$.getValue();
     const existingItem = currentOrder.find(item => item.productId === id);
+
+    const qty = quantity ?? 1;
 
     if (existingItem) {
       const updatedOrder: OrderedItemDto[] = currentOrder.map(item =>
         item.productId === id
-          ? {...item, quantity: item.quantity! += 1}
+          ? {...item, quantity: item.quantity! += qty}
           : item
       )
       this._currentOrder$.next(updatedOrder);
     } else {
-      this._currentOrder$.next([... this._currentOrder$.getValue(), { productId: id, quantity: 1 }]);
+      this._currentOrder$.next([... this._currentOrder$.getValue(), { productId: id, quantity: qty }]);
     }
   }
 
@@ -329,7 +331,7 @@ export class OrderService {
     this._tipAmount$.next(0);
   }
 
-  convertToPurchaseOrderDto(): PurchaseOrderDto {
+  convertToPurchaseOrderDto(): PurchaseOrder {
     const tip = this._tipAmount$.getValue();
     return {
       items: this._currentOrder$.getValue(),
