@@ -3,37 +3,58 @@
 
 <mat-dialog-content style="overflow: hidden">
 
-  <!-- Mengen-Display -->
-  <div class="flex items-center justify-center gap-4 my-4">
-    <button mat-stroked-button (click)="setQuantity(quantity - 1)" [disabled]="quantity <= 1">−</button>
-    <span class="text-5xl font-bold w-20 text-center">{{ quantity }}</span>
-    <button mat-stroked-button (click)="setQuantity(quantity + 1)" [disabled]="quantity >= 99">+</button>
-  </div>
+  @if (!bottleSale) {
+    <!-- Mengen-Display -->
+    <div class="flex items-center justify-center gap-4 my-4">
+      <button mat-stroked-button (click)="setQuantity(quantity - 1)" [disabled]="quantity <= 1">−</button>
+      <span class="text-5xl font-bold w-20 text-center">{{ quantity }}</span>
+      <button mat-stroked-button (click)="setQuantity(quantity + 1)" [disabled]="quantity >= 99">+</button>
+    </div>
 
-  <!-- Schnellwahl -->
-  <div class="flex flex-wrap justify-center gap-2 mb-4">
-    @for (pick of quickPicks; track pick) {
-      <button mat-stroked-button (click)="setQuantity(pick)"
-              [class.!bg-rotaract-cranberry]="quantity === pick"
-              [class.!text-white]="quantity === pick">
-        {{ pick }}
+    <!-- Schnellwahl -->
+    <div class="flex flex-wrap justify-center gap-2 mb-4">
+      @for (pick of quickPicks; track pick) {
+        <button mat-stroked-button (click)="setQuantity(pick)"
+                [class.!bg-rotaract-cranberry]="quantity === pick"
+                [class.!text-white]="quantity === pick">
+          {{ pick }}
+        </button>
+      }
+    </div>
+
+    <div class="flex justify-center">
+      <button mat-stroked-button (click)="clearQuantity()">RESET</button>
+    </div>
+  }
+
+  @if (isMexikaner) {
+    <div class="border-t mt-4 pt-4">
+      <button mat-stroked-button class="w-full"
+              [class.!bg-rotaract-cranberry]="bottleSale"
+              [class.!text-white]="bottleSale"
+              (click)="toggleBottleSale()">
+        Flasche (~{{ BOTTLE_QUANTITY }} Shots)
       </button>
-    }
-  </div>
 
-<!--  <div>-->
-  <!--  Option Flasche verkaufen ergänzen-->
-<!--  </div>-->
-
-  <button mat-stroked-button (click)="clearQuantity()">C</button>
-
-
+      @if (bottleSale) {
+        <mat-form-field class="w-full mt-3">
+          <mat-label>Gezahlter Betrag (€)</mat-label>
+          <input matInput type="number" [(ngModel)]="bottlePrice"
+                 [placeholder]="BOTTLE_MIN_PRICE.toString()"
+                 [min]="BOTTLE_MIN_PRICE">
+          <mat-hint>Mindestpreis {{ BOTTLE_MIN_PRICE }} €</mat-hint>
+        </mat-form-field>
+      }
+    </div>
+  }
 
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="cancel()">Abbrechen</button>
-  <button mat-flat-button class="!bg-rotaract-cranberry !text-white" (click)="confirm()">
+  <button mat-flat-button class="!bg-rotaract-cranberry !text-white"
+          [disabled]="confirmDisabled"
+          (click)="confirm()">
     Hinzufügen
   </button>
 </mat-dialog-actions>

@@ -126,7 +126,7 @@ export class OrderService {
           order.forEach(item => {
             const product = products!.find(p => p.id === item.productId);
             if (product) {
-              itemSum += product.price * item.quantity!;
+              itemSum += item.customPrice ?? (product.price * item.quantity!);
 
               if (product.category !== 'SHOTS') {
                 depositSum += PRICING.DEPOSIT_AMOUNT * item.quantity!;
@@ -279,21 +279,29 @@ export class OrderService {
     }
   }
 
-  addToOrder(id: number, quantity?: number) {
+  addToOrder(id: number, quantity = 1, bottleSale = false, customPrice?: number) {
     const currentOrder = this._currentOrder$.getValue();
     const existingItem = currentOrder.find(item => item.productId === id);
 
-    const qty = quantity ?? 1;
+    if (bottleSale) {
+      const bottleItem: OrderedItemDto = { productId: id, quantity, bottleSale: true, customPrice };
+      if (existingItem) {
+        this._currentOrder$.next(currentOrder.map(item => item.productId === id ? bottleItem : item));
+      } else {
+        this._currentOrder$.next([...currentOrder, bottleItem]);
+      }
+      return;
+    }
 
     if (existingItem) {
       const updatedOrder: OrderedItemDto[] = currentOrder.map(item =>
         item.productId === id
-          ? {...item, quantity: item.quantity! += qty}
+          ? {...item, quantity: item.quantity! + quantity}
           : item
-      )
+      );
       this._currentOrder$.next(updatedOrder);
     } else {
-      this._currentOrder$.next([... this._currentOrder$.getValue(), { productId: id, quantity: qty }]);
+      this._currentOrder$.next([...currentOrder, { productId: id, quantity }]);
     }
   }
 

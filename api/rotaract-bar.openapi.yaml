@@ -146,6 +146,15 @@ components:
           type: integer
           format: int32
           minimum: 1
+        bottleSale:
+          type: boolean
+          default: false
+          description: "Marks this item as a bottle sale for analytics"
+        customPrice:
+          type: number
+          format: double
+          minimum: 0
+          description: "Negotiated price for bottle sales; overrides quantity × product price in totals"
     Product:
       type: object
       properties:

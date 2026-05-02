@@ -5,7 +5,7 @@ import {MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle} from '@angular/ma
 import {OrderService} from '../../../services/order.service';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {filter, fromEvent, merge, switchMap, takeUntil, timer} from 'rxjs';
-import {ShotQuantityDialog} from '../../shot-quantity-dialog/shot-quantity-dialog';
+import {ShotQuantityDialog, ShotQuantityDialogResult} from '../../shot-quantity-dialog/shot-quantity-dialog';
 import {MatDialog} from '@angular/material/dialog';
 
 @Component({
@@ -69,12 +69,10 @@ export class ProductCard {
   private openDialog(): void {
     const ref = this.dialog.open(ShotQuantityDialog, { data: { product: this.product() } });
     ref.afterClosed()
-      .pipe(
-        filter((qty): qty is number => qty !== undefined)
-      )
-      .subscribe(result => {
-      this.orderService.addToOrder(this.product().id!, result);
-    });
+      .pipe(filter((r): r is ShotQuantityDialogResult => r !== undefined))
+      .subscribe(({ quantity, bottleSale, customPrice }) => {
+        this.orderService.addToOrder(this.product().id!, quantity, bottleSale, customPrice);
+      });
   }
 
   onCardClick() {
