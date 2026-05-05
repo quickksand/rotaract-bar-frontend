@@ -59,7 +59,6 @@ export class OrderService {
   private _ingredientsService = inject(IngredientsService)
 
   constructor() {
-    //Summen-Berechnung
     this._currentOrder$
       .pipe(
         combineLatestWith(
@@ -79,7 +78,6 @@ export class OrderService {
           let depositSum = 0;
           let freeDrinkDiscount = 0;
 
-          // Drinks in aktueller Bestellung zählen
           let drinksInOrder = 0;
           order.forEach(item => {
             const product = products?.find(p => p.id === item.productId);
@@ -88,17 +86,14 @@ export class OrderService {
             }
           });
 
-          // Status nach Bestellung berechnen
           let statusAfter = inputStatus + drinksInOrder;
           let earnedFreedrinks = 0;
 
-          // Für jeden 4er-Block → 1 Free Drink verdient
           while (statusAfter >= 4) {
             earnedFreedrinks++;
             statusAfter -= 4;
           }
 
-          // Alle DRINKS sammeln und nach Preis sortieren
           const drinkItems: {price: number, product: any}[] = [];
           order.forEach(item => {
             const product = products?.find(p => p.id === item.productId);
@@ -109,20 +104,16 @@ export class OrderService {
             }
           });
 
-          // Nach Preis absteigend sortieren
           drinkItems.sort((a, b) => b.price - a.price);
 
-          // Free Items pro Produkt berechnen
           const freeItemsMap = new Map<number, number>();
 
-          // X teuerste Drinks als gratis markieren
           for (let i = 0; i < Math.min(earnedFreedrinks, drinkItems.length); i++) {
             freeDrinkDiscount += drinkItems[i].price;
             const productId = drinkItems[i].product.id;
             freeItemsMap.set(productId, (freeItemsMap.get(productId) || 0) + 1);
           }
 
-          // Normale Summenberechnung
           order.forEach(item => {
             const product = products!.find(p => p.id === item.productId);
             if (product) {
@@ -134,7 +125,6 @@ export class OrderService {
             }
           });
 
-          // Guthaben automatisch verrechnen
           const totalBeforeCredit = itemSum + depositSum - freeDrinkDiscount;
           const totalSum = totalBeforeCredit - credit;
 
@@ -159,7 +149,6 @@ export class OrderService {
       this._nextDrinkFree$.next(nextDrinkFree);
     });
 
-    // Trinkgeld zurücksetzen wenn sich etwas ändert, das den Gesamtbetrag beeinflusst
     this._currentOrder$.pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => this._tipAmount$.next(0));
     this._returnedCupsCount$.pipe(skip(1), takeUntilDestroyed())
@@ -293,6 +282,7 @@ export class OrderService {
       return;
     }
 
+    // TODO Leon - Nachdem Flasche hinzugefügt wurde, können effektiv keine Shots mehr ergänzt werden, weil Preis fix bleibt.
     if (existingItem) {
       const updatedOrder: OrderedItemDto[] = currentOrder.map(item =>
         item.productId === id
@@ -348,7 +338,6 @@ export class OrderService {
     };
   }
 
-  // PREPARATION
   get preparationOrders$(): Observable<PrepOrder[]> {
     return this._preparationOrders$.asObservable();
   }
@@ -358,7 +347,6 @@ export class OrderService {
     );
   }
 
-  // Nach BEZAHLEN aufrufen
   submitOrderToPreparation(): void {
     const orderDto = this.convertToPurchaseOrderDto();
 

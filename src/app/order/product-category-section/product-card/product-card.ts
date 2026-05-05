@@ -4,7 +4,7 @@ import {CurrencyPipe} from '@angular/common';
 import {MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle} from '@angular/material/card';
 import {OrderService} from '../../../services/order.service';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
-import {filter, fromEvent, merge, switchMap, takeUntil, timer} from 'rxjs';
+import {filter, fromEvent, merge, switchMap, takeUntil, tap, timer} from 'rxjs';
 import {ShotQuantityDialog, ShotQuantityDialogResult} from '../../shot-quantity-dialog/shot-quantity-dialog';
 import {MatDialog} from '@angular/material/dialog';
 
@@ -69,7 +69,9 @@ export class ProductCard {
   private openDialog(): void {
     const ref = this.dialog.open(ShotQuantityDialog, { data: { product: this.product() } });
     ref.afterClosed()
-      .pipe(filter((r): r is ShotQuantityDialogResult => r !== undefined))
+      .pipe(
+        tap(_ => this.longPressTriggered = false),
+        filter((r): r is ShotQuantityDialogResult => r !== undefined))
       .subscribe(({ quantity, bottleSale, customPrice }) => {
         this.orderService.addToOrder(this.product().id!, quantity, bottleSale, customPrice);
       });
