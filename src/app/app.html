@@ -14,8 +14,13 @@
         </button>
         <button routerLink="/preparation"
                 routerLinkActive="bg-rotaract-cranberry text-white"
-                class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
+                class="relative px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
           🍹 Zubereitung
+          @if (openOrderCount() > 0) {
+            <div class="absolute -top-2 -right-2 bg-rotaract-cranberry text-white ring-2 ring-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center font-bold text-xs">
+              {{ openOrderCount() }}
+            </div>
+          }
         </button>
       </nav>
     </div>
