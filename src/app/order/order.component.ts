@@ -3,7 +3,7 @@ import {AsyncPipe} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {OrderSummary} from './order-summary/order-summary';
 import {map, Observable, tap} from 'rxjs';
-import {ProductDto} from '../api/api-client/dtos';
+import {Product} from '../api/generated-api/models/product';
 import {OrderService} from '../services/order.service';
 import {ProductsService} from '../services/products.service';
 import {HttpClient} from '@angular/common/http';
@@ -36,7 +36,7 @@ export class OrderComponent {
   protected orderService = inject(OrderService);
   protected productService = inject(ProductsService);
 
-  protected products$: Observable<ProductDto[] | undefined>;
+  protected products$: Observable<Product[] | undefined>;
   protected categories$;
 
   constructor(private http: HttpClient) {

@@ -22,7 +22,6 @@ export class IngredientsService {
   private loadIngredients(): void {
     this.http.get<IngredientDto[]>('/api/ingredients')
       .subscribe(ingredients => {
-        console.log('✅ Ingredients loaded:', ingredients);
         this._ingredients$.next(ingredients);
       });
   }

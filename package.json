@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "prestart:local-backend": "npm run openapi:all",
+    "prestart:host-local": "npm run openapi:all",
     "start:local-backend": "ng serve --proxy-config proxy.conf.json",
+    "start:host-local": "ng serve --host 0.0.0.0 --proxy-config proxy.conf.json",
     "openapi:all": "ng-openapi-gen -c api/rotaract-bar.openapi.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

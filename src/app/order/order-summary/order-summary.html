@@ -16,6 +16,12 @@
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="py-4 px-2 font-medium text-brand-charcoal">
                 {{productsService.getProductById(item.productId!)?.name}}
+                @if(item.bottleSale) {
+                  <br>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                    Flasche
+                  </span>
+                }
                 @if((orderService.freeItemsByProduct$ | async)!.get(item.productId!)) {
                   <br>
                   <span class="ml-1 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -29,7 +35,14 @@
                 </span>
               </td>
               <td class="py-4 px-2 text-right font-bold text-brand-charcoal">
-                {{(productsService.getProductById(item.productId!)?.price ?? 0) * item.quantity! | currency : 'EUR' : "symbol" : '1.2-2': 'de'}}
+                @if(item.bottleSale && item.customPrice != null) {
+                  <span class="block text-xs text-gray-400 line-through font-normal">
+                    {{(productsService.getProductById(item.productId!)?.price ?? 0) * item.quantity! | currency:'EUR':'symbol':'1.2-2':'de'}}
+                  </span>
+                  {{ item.customPrice | currency:'EUR':'symbol':'1.2-2':'de' }}
+                } @else {
+                  {{(productsService.getProductById(item.productId!)?.price ?? 0) * item.quantity! | currency:'EUR':'symbol':'1.2-2':'de'}}
+                }
               </td>
             </tr>
           }
