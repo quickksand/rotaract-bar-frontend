@@ -347,6 +347,10 @@ export class OrderService {
     );
   }
 
+  get openOrderCount$(): Observable<number> {
+    return this.activePreparationOrders$.pipe(map(orders => orders.length));
+  }
+
   submitOrderToPreparation(): void {
     const orderDto = this.convertToPurchaseOrderDto();
 
