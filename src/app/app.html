@@ -12,12 +12,28 @@
                 class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
           📋 Bestellung
         </button>
+
+<!--     TODO LEON - Klären, welches Design wir wollen-->
+        <!-- Variante A: kleiner Badge
         <button routerLink="/preparation"
                 routerLinkActive="bg-rotaract-cranberry text-white"
                 class="relative px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
           🍹 Zubereitung
           @if (openOrderCount() > 0) {
             <div class="absolute -top-2 -right-2 bg-rotaract-cranberry text-white ring-2 ring-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center font-bold text-xs">
+              {{ openOrderCount() }}
+            </div>
+          }
+        </button>
+        -->
+
+        <!-- Variante B: großer Badge -->
+        <button routerLink="/preparation"
+                routerLinkActive="bg-rotaract-cranberry text-white"
+                class="relative px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
+          🍹 Zubereitung
+          @if (openOrderCount() > 0) {
+            <div class="absolute -top-3.5 -right-3.5 bg-rotaract-cranberry text-white ring-[3px] ring-white rounded-full min-w-[2rem] h-8 px-1.5 flex items-center justify-center font-black text-base shadow-md">
               {{ openOrderCount() }}
             </div>
           }
