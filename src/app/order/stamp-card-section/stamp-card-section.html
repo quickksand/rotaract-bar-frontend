@@ -1,43 +1,140 @@
-<!-- STEMPELKARTE Section - direkt vor LONGDRINKS -->
 <section class="mb-8">
-  <h2 class="text-xl font-bold pb-4">🎫 STEMPELKARTE</h2>
+  @let enabled = (orderService.stampCardEnabled$ | async) === true;
 
-  <div class="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-    <!-- Status anzeigen: [●●●○○] 3/5 -->
-    <div class="flex items-center gap-2">
-      @for(i of [1,2,3,4]; track i) {
-        <button
-          class="w-8 h-8 rounded-full border-2 font-bold text-sm transition-colors"
-          [class.bg-rotaract-cranberry]="(orderService.stampCardStatus$ | async)! >= i"
-          [class.text-white]="(orderService.stampCardStatus$ | async)! >= i"
-          [class.border-rotaract-cranberry]="(orderService.stampCardStatus$ | async)! >= i"
-          [class.border-gray-300]="(orderService.stampCardStatus$ | async)! < i"
-          (click)="orderService.setStampStatus(i)">
-          {{ i }}
-        </button>
-      }
-    </div>
-
-      <!-- Status-Anzeige -->
-      <div class="flex items-center gap-3">
-      <span class="text-sm text-gray-600">
-        {{ orderService.stampCardStatus$ | async }}/4
+  <!-- Header mit Toggle direkt neben dem Titel -->
+  <div class="flex items-center gap-3 pb-2">
+    <h2 class="text-xl font-bold">🎫 STEMPELKARTE</h2>
+    <button
+      class="relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+      [class.bg-rotaract-cranberry]="enabled"
+      [class.bg-gray-300]="!enabled"
+      (click)="orderService.toggleStampCardEnabled()">
+      <span
+        class="inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"
+        [class.translate-x-8]="enabled"
+        [class.translate-x-1]="!enabled">
       </span>
+    </button>
+  </div>
 
-      @if((orderService.currentOrder$ | async)!.length > 0) {
-        <span class="text-gray-400">→</span>
-        <!-- Deutliche Hervorhebung des finalen Status -->
-        <div class="bg-rotaract-cranberry text-white px-3 py-2 rounded-lg font-bold">
-          {{ orderService.stampCardStatusAfter$ | async }}/4
+  @if(enabled) {
+    @let stampBefore = (orderService.stampCardStatus$ | async)!;
+    @let stampAfter = (orderService.stampCardStatusAfter$ | async)!;
+    @let freeCount = (earnedFreeDrinksCount$ | async)!;
+    @let hasOrderItems = (orderService.currentOrder$ | async)!.length > 0;
+
+    <div class="p-4 bg-gray-50 pb-0 rounded-lg space-y-4">
+
+      @if(!hasOrderItems) {
+        <!-- Einfacher Picker ohne Einrückung solange noch kein Drink gewählt -->
+        <div class="flex items-center gap-2">
+          @for(i of [1, 2, 3, 4]; track i) {
+            <button
+              class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors"
+              [class.bg-rotaract-cranberry]="stampBefore >= i"
+              [class.text-white]="stampBefore >= i"
+              [class.border-rotaract-cranberry]="stampBefore >= i"
+              [class.border-gray-300]="stampBefore < i"
+              (click)="onStampClick(i)">
+              {{ i }}
+            </button>
+          }
+          <span class="text-sm text-gray-400 ml-1">{{ stampBefore }}/4</span>
         </div>
+      } @else {
+        <!-- Tabellenform: "Vorher" + After-Zeilen bündig -->
+
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500 w-20 shrink-0">Vorher</span>
+          <div class="flex items-center gap-2">
+            @for(i of [1, 2, 3, 4]; track i) {
+              <button
+                class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors"
+                [class.bg-rotaract-cranberry]="stampBefore >= i"
+                [class.text-white]="stampBefore >= i"
+                [class.border-rotaract-cranberry]="stampBefore >= i"
+                [class.border-gray-300]="stampBefore < i"
+                (click)="onStampClick(i)">
+                {{ i }}
+              </button>
+            }
+          </div>
+          <!-- Badge direkt bei "Vorher" wenn Karte schon vor der Bestellung voll war -->
+          @if(stampBefore === 4 && freeCount > 0) {
+            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-1">
+              {{ freeCount }}x gratis
+            </span>
+          } @else {
+            <span class="text-sm text-gray-400 ml-1">{{ stampBefore }}/4</span>
+          }
+        </div>
+
+        @if(freeCount > 0) {
+
+          <!-- "Alte Karte"-Zeile nur wenn die Karte erst durch diese Bestellung voll wurde -->
+          @if(stampBefore < 4) {
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 shrink-0">Alte Karte</span>
+              <div class="flex items-center gap-2">
+                @for(i of [1, 2, 3, 4]; track i) {
+                  <div class="w-10 h-10 rounded-full bg-rotaract-cranberry border-2 border-rotaract-cranberry flex items-center justify-center">
+                    <span class="text-white font-bold text-base">✓</span>
+                  </div>
+                }
+              </div>
+              <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-1">
+                {{ freeCount }}x gratis
+              </span>
+            </div>
+          }
+
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 w-20 shrink-0">Neue Karte</span>
+            <div class="flex items-center gap-2">
+              @for(i of [1, 2, 3, 4]; track i) {
+                <div
+                  class="w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-sm transition-colors"
+                  [class.bg-rotaract-cranberry]="stampAfter >= i"
+                  [class.text-white]="stampAfter >= i"
+                  [class.border-rotaract-cranberry]="stampAfter >= i"
+                  [class.border-gray-300]="stampAfter < i">
+                  {{ i }}
+                </div>
+              }
+            </div>
+            <span class="text-sm text-gray-400 ml-1">{{ stampAfter }}/4</span>
+          </div>
+
+        } @else {
+
+          <!-- Karte nicht voll: Danach-Status -->
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 w-20 shrink-0">→ Danach</span>
+            <div class="flex items-center gap-2">
+              @for(i of [1, 2, 3, 4]; track i) {
+                <div
+                  class="w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-sm transition-colors"
+                  [class.bg-rotaract-cranberry]="stampAfter >= i"
+                  [class.text-white]="stampAfter >= i"
+                  [class.border-rotaract-cranberry]="stampAfter >= i"
+                  [class.border-gray-300]="stampAfter < i">
+                  {{ i }}
+                </div>
+              }
+            </div>
+            @if(stampAfter === 4) {
+              <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-1">
+                Karte voll!
+              </span>
+            } @else {
+              <span class="bg-rotaract-cranberry text-white text-sm font-bold px-3 py-1 rounded-lg ml-1">
+                {{ stampAfter }}/4
+              </span>
+            }
+          </div>
+
+        }
       }
     </div>
-
-<!--      &lt;!&ndash; Free Status &ndash;&gt;-->
-<!--      @if(orderService.nextDrinkFree$ | async) {-->
-<!--        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">-->
-<!--      Nächster: FREE!-->
-<!--    </span>-->
-<!--      }-->
-    </div>
+  }
 </section>
