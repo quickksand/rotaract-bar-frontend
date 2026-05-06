@@ -187,6 +187,15 @@ export class OrderService {
     map(total => Math.max(0, -total))
   );
 
+  // null = kein Badge; 0 = "Neue Stempelkarte ausgeben"; N = "...mit N Stempeln"
+  readonly newStampCardStamps$: Observable<number | null> = combineLatest([
+    this._stampCardEnabled$,
+    this._stampCardStatusAfter$,
+    this._freeDrinkDiscount$
+  ]).pipe(
+    map(([enabled, after, discount]) => enabled && discount > 0 ? after : null)
+  );
+
   readonly newTokensNeeded$ = combineLatest([
     this._currentOrder$,
     this._productService.products$,

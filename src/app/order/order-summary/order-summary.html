@@ -123,14 +123,28 @@
   }
 </div>
 
-<!-- Pfandmarken-Badge — Handlungsanweisung nach dem Kassieren -->
-@if((this.orderService.currentDepositSum$ | async)! > 0 && (orderService.newTokensNeeded$ | async)! > 0) {
-  <div class="flex pt-1 pb-4 justify-center">
-    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
-      🪙
-      {{ (orderService.newTokensNeeded$ | async) }}
-      {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
-    </span>
+<!-- Ausgabe-Badges: Pfandmarken & Stempelkarte -->
+@let newStamps = (orderService.newStampCardStamps$ | async);
+@let showPfand = (this.orderService.currentDepositSum$ | async)! > 0 && (orderService.newTokensNeeded$ | async)! > 0;
+@if(showPfand || newStamps !== null) {
+  <div class="flex flex-col items-center gap-2 pt-1 pb-4">
+    @if(showPfand) {
+      <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
+        🪙
+        {{ (orderService.newTokensNeeded$ | async) }}
+        {{ (orderService.newTokensNeeded$ | async) === 1 ? 'Pfandmarke' : 'Pfandmarken' }} ausgeben
+      </span>
+    }
+    @if(newStamps !== null) {
+      <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800">
+        🎫
+        @if(newStamps > 0) {
+          Neue Stempelkarte mit {{ newStamps }} {{ newStamps === 1 ? 'Stempel' : 'Stempeln' }} ausgeben
+        } @else {
+          Neue Stempelkarte ausgeben
+        }
+      </span>
+    }
   </div>
 }
 
