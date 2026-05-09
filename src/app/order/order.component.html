@@ -24,11 +24,20 @@
   <aside class="lg:col-span-4 bg-white border-l p-6 overflow-y-auto">
     <div class="h-full overflow-y-auto">
       <app-order-summary/>
-      <div class="flex justify-center">
-        <button matButton class="!bg-rotaract-cranberry !text-white !rounded-lg w-80" (click)="onSendOrder()">BEZAHLEN</button>
+      <div class="flex gap-3 pt-2 pb-1">
+        <button matButton
+          class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
+          (click)="onSendOrder('CASH')">
+          💵 BAR
+        </button>
+        <button matButton
+          class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
+          (click)="onSendOrder('PAYPAL')">
+          🅿 PAYPAL
+        </button>
       </div>
-      <div class="flex justify-center pt-5">
-        <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-80" (click)="orderService.clearOrder()">ALLES LÖSCHEN</button>
+      <div class="flex justify-center pt-3">
+        <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-full" (click)="orderService.clearOrder()">ALLES LÖSCHEN</button>
       </div>
       </div>
   </aside>
