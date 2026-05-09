@@ -380,11 +380,12 @@ export class OrderService {
     this._tipAmount$.next(0);
   }
 
-  convertToPurchaseOrderDto(): PurchaseOrder {
+  convertToPurchaseOrderDto(paymentMethod: PurchaseOrder['paymentMethod'] = 'CASH'): PurchaseOrder {
     const tip = this._tipAmount$.getValue();
     return {
       items: this._currentOrder$.getValue(),
       returnedCupsCount: this._returnedCupsCount$.getValue(),
+      paymentMethod,
       ...(tip > 0 && { tipAmount: tip })
     };
   }
@@ -402,8 +403,8 @@ export class OrderService {
     return this.activePreparationOrders$.pipe(map(orders => orders.length));
   }
 
-  submitOrderToPreparation(): void {
-    const orderDto = this.convertToPurchaseOrderDto();
+  submitOrderToPreparation(paymentMethod: PurchaseOrder['paymentMethod'] = 'CASH'): void {
+    const orderDto = this.convertToPurchaseOrderDto(paymentMethod);
 
     if (!orderDto.items || orderDto.items.length === 0) {
       console.warn('Keine Items in der Bestellung - Preparation übersprungen');

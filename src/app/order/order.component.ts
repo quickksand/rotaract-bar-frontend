@@ -11,6 +11,7 @@ import {ProductCategorySection} from './product-category-section/product-categor
 import {CategoryDisplayPipe} from './category-display.pipe';
 import {DepositSection} from './deposit-section/deposit-section';
 import {StampCardSection} from './stamp-card-section/stamp-card-section';
+import {PurchaseOrder} from '../api/generated-api/models/purchase-order';
 
 export interface OrderedItem {
   productId: number,
@@ -50,11 +51,11 @@ export class OrderComponent {
     );
   }
 
-  onSendOrder() {
-    const newOrder = this.orderService.convertToPurchaseOrderDto();
+  onSendOrder(paymentMethod: PurchaseOrder['paymentMethod'] = 'CASH') {
+    const newOrder = this.orderService.convertToPurchaseOrderDto(paymentMethod);
     this.http.post<void>('api/orders', newOrder)
       .pipe(
-        tap(() => this.orderService.submitOrderToPreparation())
+        tap(() => this.orderService.submitOrderToPreparation(paymentMethod))
       )
       .subscribe((res) => console.log('POST RESPONSE ', res))
   }

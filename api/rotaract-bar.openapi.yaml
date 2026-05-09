@@ -217,3 +217,7 @@ components:
           format: double
           minimum: 0
           description: "Optional tip amount in EUR"
+        paymentMethod:
+          type: string
+          enum: [CASH, PAYPAL]
+          description: "Payment method used for this order"
