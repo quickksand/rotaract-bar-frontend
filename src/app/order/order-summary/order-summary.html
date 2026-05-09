@@ -10,6 +10,7 @@
           <th class="text-left py-3 px-2 font-bold text-brand-charcoal text-sm">Produkt</th>
           <th class="text-center py-3 px-2 font-bold text-brand-charcoal text-sm">Anzahl</th>
           <th class="text-right py-3 px-2 font-bold text-brand-charcoal text-sm">Preis</th>
+          <th class="w-8"></th>
         </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -44,6 +45,13 @@
                 } @else {
                   {{(productsService.getProductById(item.productId!)?.price ?? 0) * item.quantity! | currency:'EUR':'symbol':'1.2-2':'de'}}
                 }
+              </td>
+              <td class="py-4 px-1">
+                <button
+                  (click)="orderService.removePosition(item.productId!)"
+                  class="w-7 h-7 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg leading-none">
+                  ×
+                </button>
               </td>
             </tr>
           }

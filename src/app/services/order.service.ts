@@ -362,6 +362,10 @@ export class OrderService {
     this._stampCardInputStatus$.next(Math.max(0, Math.min(4, stamps)));
   }
 
+  removePosition(id: number): void {
+    this._currentOrder$.next(this._currentOrder$.getValue().filter(item => item.productId !== id));
+  }
+
   clearOrder() {
     this._currentOrder$.next([]);
     this._returnedCupsCount$.next(0);
