@@ -1,8 +1,8 @@
-<section class="mb-4">
+<section class="mb-5 bg-violet-50 border border-violet-100 rounded-lg px-3 py-3">
   @let enabled = (orderService.stampCardEnabled$ | async) === true;
 
-  <div class="flex items-center gap-3 pb-2">
-    <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">🎫 Stempelkarte</span>
+  <div class="flex items-center gap-3" [class.mb-3]="enabled">
+    <span class="text-sm font-bold text-violet-800">🎫 Stempelkarte</span>
     <button
       class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none shrink-0"
       [class.bg-rotaract-cranberry]="enabled"
@@ -14,6 +14,9 @@
         [class.translate-x-1]="!enabled">
       </span>
     </button>
+<!--    @if(!enabled) {-->
+<!--      <span class="text-xs text-violet-400 italic">aus</span>-->
+<!--    }-->
   </div>
 
   @if(enabled) {
@@ -21,59 +24,57 @@
     @let stampAfter = (orderService.stampCardStatusAfter$ | async)!;
     @let freeCount = (earnedFreeDrinksCount$ | async)!;
 
-    <div class="bg-gray-50 rounded-lg px-3 py-2.5">
-      <div class="flex items-center gap-2">
+    <div class="flex items-center pt-2 space-y-2 gap-2">
 
-        <!-- Vorher (clickable) -->
-        <div class="flex flex-col items-center gap-1 shrink-0">
-          <div class="flex gap-1.5">
-            @for(i of [1,2,3,4]; track i) {
-              <button
-                class="w-8 h-8 rounded-full border-2 font-bold text-xs transition-colors flex items-center justify-center"
-                [class.bg-rotaract-cranberry]="stampBefore >= i"
-                [class.text-white]="stampBefore >= i"
-                [class.border-rotaract-cranberry]="stampBefore >= i"
-                [class.border-gray-300]="stampBefore < i"
-                (click)="onStampClick(i)">
-                {{ i }}
-              </button>
-            }
-          </div>
-          <span class="text-[10px] text-gray-400 leading-none">{{ stampBefore }}/4 vorher</span>
+      <!-- Vorher (clickable) -->
+      <div class="flex flex-col items-center gap-1 shrink-0">
+        <div class="flex gap-1.5">
+          @for(i of [1,2,3,4]; track i) {
+            <button
+              class="w-8 h-8 rounded-full border-2 font-bold text-xs transition-colors flex items-center justify-center"
+              [class.bg-rotaract-cranberry]="stampBefore >= i"
+              [class.text-white]="stampBefore >= i"
+              [class.border-rotaract-cranberry]="stampBefore >= i"
+              [class.border-gray-300]="stampBefore < i"
+              (click)="onStampClick(i)">
+              {{ i }}
+            </button>
+          }
         </div>
-
-        <!-- Pfeil -->
-        <span class="text-gray-300 text-base shrink-0 mb-3">→</span>
-
-        <!-- Danach -->
-        <div class="flex flex-col items-center gap-1 shrink-0">
-          <div class="flex gap-1.5">
-            @for(i of [1,2,3,4]; track i) {
-              <div
-                class="w-8 h-8 rounded-full border-2 font-bold text-xs flex items-center justify-center transition-colors"
-                [class.bg-rotaract-cranberry]="stampAfter >= i"
-                [class.text-white]="stampAfter >= i"
-                [class.border-rotaract-cranberry]="stampAfter >= i"
-                [class.border-gray-300]="stampAfter < i">
-                {{ i }}
-              </div>
-            }
-          </div>
-          <span class="text-[10px] leading-none font-medium"
-                [class.text-violet-500]="freeCount > 0"
-                [class.text-gray-400]="freeCount === 0">
-            @if(freeCount > 0) { {{ stampAfter }}/4 Neue Karte } @else { {{ stampAfter }}/4 danach }
-          </span>
-        </div>
-
-        <!-- Gratis-Badge -->
-        @if(freeCount > 0) {
-          <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-auto">
-            {{ freeCount }}x gratis
-          </span>
-        }
-
+        <span class="text-[10px] text-gray-400 leading-none">{{ stampBefore }}/4 vorher</span>
       </div>
+
+      <!-- Pfeil -->
+      <span class="text-gray-300 text-base shrink-0 mb-3">→</span>
+
+      <!-- Danach -->
+      <div class="flex flex-col items-center gap-1 shrink-0">
+        <div class="flex gap-1.5">
+          @for(i of [1,2,3,4]; track i) {
+            <div
+              class="w-8 h-8 rounded-full border-2 font-bold text-xs flex items-center justify-center transition-colors"
+              [class.bg-rotaract-cranberry]="stampAfter >= i"
+              [class.text-white]="stampAfter >= i"
+              [class.border-rotaract-cranberry]="stampAfter >= i"
+              [class.border-gray-300]="stampAfter < i">
+              {{ i }}
+            </div>
+          }
+        </div>
+        <span class="text-[10px] leading-none font-medium"
+              [class.text-violet-500]="freeCount > 0"
+              [class.text-gray-400]="freeCount === 0">
+          @if(freeCount > 0) { {{ stampAfter }}/4 Neue Karte } @else { {{ stampAfter }}/4 danach }
+        </span>
+      </div>
+
+      <!-- Gratis-Badge -->
+      @if(freeCount > 0) {
+        <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-auto">
+          {{ freeCount }}x gratis
+        </span>
+      }
+
     </div>
   }
 </section>
