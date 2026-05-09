@@ -45,6 +45,7 @@ export class OrderService {
   private _tipAmount$ = new BehaviorSubject<number>(0);
 
   //STEMPELKARTE
+  private _stampCardEnabled$ = new BehaviorSubject<boolean>(false);
   private _stampCardInputStatus$ = new BehaviorSubject<number>(0);
   private _stampCardStatusAfter$ = new BehaviorSubject<number>(0);
   private _nextDrinkFree$ = new BehaviorSubject<boolean>(false);
@@ -64,14 +65,16 @@ export class OrderService {
         combineLatestWith(
           this._productService.products$,
           this._creditBalance$,
-          this._stampCardInputStatus$
+          this._stampCardInputStatus$,
+          this._stampCardEnabled$
         ),
         map((
           [
             order,
             products,
             credit,
-            inputStatus
+            inputStatus,
+            stampCardEnabled
           ]) => {
 
           let itemSum = 0;
@@ -86,12 +89,27 @@ export class OrderService {
             }
           });
 
-          let statusAfter = inputStatus + drinksInOrder;
+          let statusAfter = 0;
           let earnedFreedrinks = 0;
 
-          while (statusAfter >= 4) {
-            earnedFreedrinks++;
-            statusAfter -= 4;
+          if (stampCardEnabled) {
+            // Jeder bezahlte Drink füllt einen Stempel.
+            // Ist die Karte voll (4/4), wird der nächste Drink gratis —
+            // er zählt nicht als Stempel (5. Drink ist gratis, nicht der 4.).
+            statusAfter = inputStatus;
+            let remaining = drinksInOrder;
+            while (remaining > 0) {
+              if (statusAfter >= 4) {
+                earnedFreedrinks++;
+                statusAfter = 0;
+                remaining--;
+              } else {
+                const toFill = 4 - statusAfter;
+                const consumed = Math.min(remaining, toFill);
+                statusAfter += consumed;
+                remaining -= consumed;
+              }
+            }
           }
 
           const drinkItems: {price: number, product: any}[] = [];
@@ -155,6 +173,8 @@ export class OrderService {
       .subscribe(() => this._tipAmount$.next(0));
     this._stampCardInputStatus$.pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => this._tipAmount$.next(0));
+    this._stampCardEnabled$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
   }
 
   get returnedCupsCount$(): Observable<number> {
@@ -167,6 +187,15 @@ export class OrderService {
 
   readonly donateablePfandAmount$ = this._currentTotalSum$.pipe(
     map(total => Math.max(0, -total))
+  );
+
+  // null = kein Badge; 0 = "Neue Stempelkarte ausgeben"; N = "...mit N Stempeln"
+  readonly newStampCardStamps$: Observable<number | null> = combineLatest([
+    this._stampCardEnabled$,
+    this._stampCardStatusAfter$,
+    this._freeDrinkDiscount$
+  ]).pipe(
+    map(([enabled, after, discount]) => enabled && discount > 0 ? after : null)
   );
 
   readonly newTokensNeeded$ = combineLatest([
@@ -232,6 +261,24 @@ export class OrderService {
 
   clearTip(): void {
     this._tipAmount$.next(0);
+  }
+
+  get stampCardEnabled$(): Observable<boolean> {
+    return this._stampCardEnabled$.asObservable();
+  }
+
+  get stampCardEnabledValue(): boolean {
+    return this._stampCardEnabled$.getValue();
+  }
+
+  toggleStampCardEnabled(): void {
+    const next = !this._stampCardEnabled$.getValue();
+    this._stampCardEnabled$.next(next);
+    if (!next) this._stampCardInputStatus$.next(0);
+  }
+
+  get stampCardStatusValue(): number {
+    return this._stampCardInputStatus$.getValue();
   }
 
   get stampCardStatus$(): Observable<number> {
@@ -317,14 +364,18 @@ export class OrderService {
     this._stampCardInputStatus$.next(Math.max(0, Math.min(4, stamps)));
   }
 
+  removePosition(id: number): void {
+    this._currentOrder$.next(this._currentOrder$.getValue().filter(item => item.productId !== id));
+  }
+
   clearOrder() {
     this._currentOrder$.next([]);
     this._returnedCupsCount$.next(0);
     this._creditBalance$.next(0);
+    this._stampCardEnabled$.next(false);
     this._stampCardInputStatus$.next(0);
     this._nextDrinkFree$.next(false);
     this._freeItemsByProduct$.next(new Map());
-    // this._freeDrinkCount$.next(0);
     this._stampCardStatusAfter$.next(0);
     this._tipAmount$.next(0);
   }

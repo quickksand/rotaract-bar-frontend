@@ -1,43 +1,80 @@
-<!-- STEMPELKARTE Section - direkt vor LONGDRINKS -->
-<section class="mb-8">
-  <h2 class="text-xl font-bold pb-4">🎫 STEMPELKARTE</h2>
+<section class="mb-5 bg-violet-50 border border-violet-100 rounded-lg px-3 py-3">
+  @let enabled = (orderService.stampCardEnabled$ | async) === true;
 
-  <div class="flex items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-    <!-- Status anzeigen: [●●●○○] 3/5 -->
-    <div class="flex items-center gap-2">
-      @for(i of [1,2,3,4]; track i) {
-        <button
-          class="w-8 h-8 rounded-full border-2 font-bold text-sm transition-colors"
-          [class.bg-rotaract-cranberry]="(orderService.stampCardStatus$ | async)! >= i"
-          [class.text-white]="(orderService.stampCardStatus$ | async)! >= i"
-          [class.border-rotaract-cranberry]="(orderService.stampCardStatus$ | async)! >= i"
-          [class.border-gray-300]="(orderService.stampCardStatus$ | async)! < i"
-          (click)="orderService.setStampStatus(i)">
-          {{ i }}
-        </button>
-      }
-    </div>
-
-      <!-- Status-Anzeige -->
-      <div class="flex items-center gap-3">
-      <span class="text-sm text-gray-600">
-        {{ orderService.stampCardStatus$ | async }}/4
+  <div class="flex items-center gap-3" [class.mb-3]="enabled">
+    <span class="text-sm font-bold text-violet-800">🎫 Stempelkarte</span>
+    <button
+      class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none shrink-0"
+      [class.bg-rotaract-cranberry]="enabled"
+      [class.bg-gray-300]="!enabled"
+      (click)="orderService.toggleStampCardEnabled()">
+      <span
+        class="inline-block h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-200"
+        [class.translate-x-6]="enabled"
+        [class.translate-x-1]="!enabled">
       </span>
+    </button>
+<!--    @if(!enabled) {-->
+<!--      <span class="text-xs text-violet-400 italic">aus</span>-->
+<!--    }-->
+  </div>
 
-      @if((orderService.currentOrder$ | async)!.length > 0) {
-        <span class="text-gray-400">→</span>
-        <!-- Deutliche Hervorhebung des finalen Status -->
-        <div class="bg-rotaract-cranberry text-white px-3 py-2 rounded-lg font-bold">
-          {{ orderService.stampCardStatusAfter$ | async }}/4
+  @if(enabled) {
+    @let stampBefore = (orderService.stampCardStatus$ | async)!;
+    @let stampAfter = (orderService.stampCardStatusAfter$ | async)!;
+    @let freeCount = (earnedFreeDrinksCount$ | async)!;
+
+    <div class="flex items-center pt-2 space-y-2 gap-2">
+
+      <!-- Vorher (clickable) -->
+      <div class="flex flex-col items-center gap-1 shrink-0">
+        <div class="flex gap-1.5">
+          @for(i of [1,2,3,4]; track i) {
+            <button
+              class="w-8 h-8 rounded-full border-2 font-bold text-xs transition-colors flex items-center justify-center"
+              [class.bg-rotaract-cranberry]="stampBefore >= i"
+              [class.text-white]="stampBefore >= i"
+              [class.border-rotaract-cranberry]="stampBefore >= i"
+              [class.border-gray-300]="stampBefore < i"
+              (click)="onStampClick(i)">
+              {{ i }}
+            </button>
+          }
         </div>
-      }
-    </div>
+        <span class="text-[10px] text-gray-400 leading-none">{{ stampBefore }}/4 vorher</span>
+      </div>
 
-<!--      &lt;!&ndash; Free Status &ndash;&gt;-->
-<!--      @if(orderService.nextDrinkFree$ | async) {-->
-<!--        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">-->
-<!--      Nächster: FREE!-->
-<!--    </span>-->
-<!--      }-->
+      <!-- Pfeil -->
+      <span class="text-gray-300 text-base shrink-0 mb-3">→</span>
+
+      <!-- Danach -->
+      <div class="flex flex-col items-center gap-1 shrink-0">
+        <div class="flex gap-1.5">
+          @for(i of [1,2,3,4]; track i) {
+            <div
+              class="w-8 h-8 rounded-full border-2 font-bold text-xs flex items-center justify-center transition-colors"
+              [class.bg-rotaract-cranberry]="stampAfter >= i"
+              [class.text-white]="stampAfter >= i"
+              [class.border-rotaract-cranberry]="stampAfter >= i"
+              [class.border-gray-300]="stampAfter < i">
+              {{ i }}
+            </div>
+          }
+        </div>
+        <span class="text-[10px] leading-none font-medium"
+              [class.text-violet-500]="freeCount > 0"
+              [class.text-gray-400]="freeCount === 0">
+          @if(freeCount > 0) { {{ stampAfter }}/4 Neue Karte } @else { {{ stampAfter }}/4 danach }
+        </span>
+      </div>
+
+      <!-- Gratis-Badge -->
+      @if(freeCount > 0) {
+        <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-auto">
+          {{ freeCount }}x gratis
+        </span>
+      }
+
     </div>
+  }
 </section>

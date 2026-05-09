@@ -6,6 +6,7 @@ import {ProductsService} from '../../services/products.service';
 import {Product} from '../../api/generated-api/models/product';
 import {MatChipsModule} from '@angular/material/chips';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {StampCardSection} from '../stamp-card-section/stamp-card-section';
 
 type TipChip = 'round-euro' | 'round-five' | 'donate-pfand';
 
@@ -15,6 +16,7 @@ type TipChip = 'round-euro' | 'round-five' | 'donate-pfand';
     AsyncPipe,
     CurrencyPipe,
     MatChipsModule,
+    StampCardSection,
   ],
   templateUrl: './order-summary.html',
   styleUrl: './order-summary.css'
