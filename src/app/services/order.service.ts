@@ -173,6 +173,8 @@ export class OrderService {
       .subscribe(() => this._tipAmount$.next(0));
     this._stampCardInputStatus$.pipe(skip(1), takeUntilDestroyed())
       .subscribe(() => this._tipAmount$.next(0));
+    this._stampCardEnabled$.pipe(skip(1), takeUntilDestroyed())
+      .subscribe(() => this._tipAmount$.next(0));
   }
 
   get returnedCupsCount$(): Observable<number> {
