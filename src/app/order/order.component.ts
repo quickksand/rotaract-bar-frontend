@@ -10,7 +10,6 @@ import {HttpClient} from '@angular/common/http';
 import {ProductCategorySection} from './product-category-section/product-category-section.component';
 import {CategoryDisplayPipe} from './category-display.pipe';
 import {DepositSection} from './deposit-section/deposit-section';
-import {StampCardSection} from './stamp-card-section/stamp-card-section';
 import {PurchaseOrder} from '../api/generated-api/models/purchase-order';
 
 export interface OrderedItem {
@@ -27,8 +26,7 @@ export interface OrderedItem {
     OrderSummary,
     ProductCategorySection,
     CategoryDisplayPipe,
-    DepositSection,
-    StampCardSection
+    DepositSection
   ],
   templateUrl: './order.component.html',
   styleUrl: './order.component.css'

@@ -19,7 +19,6 @@ export class ProductsService {
       )
       .subscribe(
         products => {
-          // console.log('✅ Products loaded:', products);
           return this._products$.next(products)
         }
       );
