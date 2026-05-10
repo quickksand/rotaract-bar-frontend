@@ -1,6 +1,20 @@
-import {inject, Injectable} from '@angular/core';
-import {firstValueFrom, fromEvent, map, merge, Observable, of, shareReplay, startWith} from "rxjs";
-import {getProducts} from '../api/generated-api/fn/product-controller/get-products';
+import {Injectable} from '@angular/core';
+import {
+  catchError,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  fromEvent,
+  map,
+  merge,
+  Observable,
+  of,
+  shareReplay,
+  startWith,
+  switchMap,
+  timer,
+  withLatestFrom
+} from "rxjs";
 import {HttpClient} from '@angular/common/http';
 
 @Injectable({
@@ -9,30 +23,36 @@ import {HttpClient} from '@angular/common/http';
 export class ConnectionStatusService {
 
   private isOnline$: Observable<boolean> = new Observable<boolean>();
-  private browserStatus$: Observable<boolean> = of(true);
-  private serverStatus$: Observable<boolean>;
 
-  private http = inject(HttpClient);
-
-  constructor() {
+  constructor(private http: HttpClient) {
     const online$ = fromEvent(window, 'online').pipe(map((_) => true));
     const offline$ = fromEvent(window, 'offline').pipe(map((_) => false));
-    const clientIsOnline$ = merge(online$, offline$).pipe(
-      shareReplay(),
+    const browserStatus$ = merge(online$, offline$).pipe(
       startWith(navigator.onLine)
     );
 
-    // TODO polling every 10s for serverstatus
-    firstValueFrom(getProducts(this.http, '/api/products'))
-      .then(res => console.log(res.status));
 
+    const serverStatus$ = timer(0, 10000).pipe(
+      withLatestFrom(browserStatus$),
+      filter(([timer, status]) => status === true),
+      switchMap(() => this.http.get('/api/products').pipe(
+        map(() => true),
+        catchError(() => of(false)))
+      )
+    );
 
-    clientIsOnline$.subscribe(val => console.log(val));
-
-    // this.isOnline$ = combineLatest(this.browserStatus$, this.serverStatus$).pipe(
-    //   map(([browser, server]) => browser && server),
-    //   distinctUntilChanged()
-    // );
+    /* Warning Edge Case: An extensive wait
+      If Server is offline (false) and then Browser
+      => serverStatus emits nothing
+      => Browser back online => browserStatus true
+      => combineLatest(true, false)
+      => wait an extra 10s for new serverStatus emit
+    */
+    this.isOnline$ = combineLatest([browserStatus$, serverStatus$]).pipe(
+      map(([browser, server]) => browser && server),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   }
 
   get isOnline() {
