@@ -32,7 +32,8 @@ export class ConnectionStatusService {
     );
 
 
-    const serverStatus$ = timer(0, 10000).pipe(
+    // TODO Leon Polling hinterfragen - ggf. Websockets?
+    const serverStatus$ = timer(0, 30000).pipe(
       withLatestFrom(browserStatus$),
       filter(([timer, status]) => status === true),
       switchMap(() => this.http.get('/api/products').pipe(
