@@ -5,7 +5,7 @@ import {OrderSummary} from './order-summary/order-summary';
 import {map, Observable, tap} from 'rxjs';
 import {Product} from '../api/generated-api/models/product';
 import {OrderService} from '../services/order.service';
-import {ProductsService} from '../services/products.service';
+import {ProductsService} from '../services/drinks/products.service';
 import {HttpClient} from '@angular/common/http';
 import {ProductCategorySection} from './product-category-section/product-category-section.component';
 import {CategoryDisplayPipe} from './category-display.pipe';

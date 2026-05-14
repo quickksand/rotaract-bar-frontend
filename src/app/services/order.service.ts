@@ -1,11 +1,11 @@
 import {inject, Injectable} from '@angular/core';
 import {PurchaseOrder} from '../api/generated-api/models';
 import {BehaviorSubject, combineLatest, combineLatestWith, map, Observable, skip} from 'rxjs';
-import {ProductsService} from './products.service';
+import {ProductsService} from './drinks/products.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {PRICING} from '../constants/pricing.constants';
 import {OrderedItem as OrderedItemDto} from '../api/generated-api/models/ordered-item';
-import {IngredientsService} from './ingredients.service';
+import {IngredientsService} from './drinks/ingredients.service';
 
 interface PrepOrder {
   id: number;

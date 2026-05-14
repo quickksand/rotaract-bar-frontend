@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, EMPTY, of, tap} from 'rxjs';
-import {Product} from '../api/generated-api/models/product';
+import {Product} from '../../api/generated-api/models/product';
 import {HttpClient} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 

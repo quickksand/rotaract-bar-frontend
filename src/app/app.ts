@@ -3,7 +3,7 @@ import {FormsModule} from '@angular/forms';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {OrderService} from './services/order.service';
-import {ConnectionStatusService} from './services/connection-status.service';
+import {ConnectionStatusService} from './services/offline-capability/connection-status.service';
 
 
 @Component({

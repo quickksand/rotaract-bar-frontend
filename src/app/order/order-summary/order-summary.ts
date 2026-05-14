@@ -2,7 +2,7 @@ import {Component, inject} from '@angular/core';
 import {OrderService} from '../../services/order.service';
 import {filter, Observable, skip} from 'rxjs';
 import {AsyncPipe, CurrencyPipe} from '@angular/common';
-import {ProductsService} from '../../services/products.service';
+import {ProductsService} from '../../services/drinks/products.service';
 import {Product} from '../../api/generated-api/models/product';
 import {MatChipsModule} from '@angular/material/chips';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
