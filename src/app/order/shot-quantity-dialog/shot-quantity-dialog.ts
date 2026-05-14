@@ -5,10 +5,10 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {CurrencyPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {Product} from '../../api/generated-api/models/product';
+import {ProductDto} from '../../api/generated-api/models';
 
 export interface ShotQuantityDialogData {
-  product: Product;
+  product: ProductDto;
 }
 
 export interface ShotQuantityDialogResult {

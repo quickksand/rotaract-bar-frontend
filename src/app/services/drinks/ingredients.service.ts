@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, catchError, EMPTY, of, tap} from 'rxjs';
-import {Ingredient as IngredientDto} from '../../api/generated-api/models/ingredient';
+import {IngredientDto} from '../../api/generated-api/models';
 
 export const INGREDIENTS_CACHE_KEY = 'ingredients_cache';
 

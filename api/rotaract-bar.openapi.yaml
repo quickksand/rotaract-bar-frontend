@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: OpenAPI definition
-  version: v1
+  version: 1.1.0
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -51,7 +51,7 @@ paths:
               $ref: "#/components/schemas/PurchaseOrder"
         required: true
       responses:
-        "200":
+        "201":
           description: Successful
           content:
             application/json:
@@ -98,6 +98,38 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ingredient'
+  /api/orders/batch:
+    post:
+      tags:
+        - purchase-order-controller
+      summary: Batch import orders
+      description: Imports multiple purchase orders in a single request. Orders that fail validation are skipped and reported in the errors list.
+      operationId: importOrdersBatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchOrderImport"
+        required: true
+      responses:
+        "207":
+          description: Multi-status — contains created orders and any import errors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchOrderResult"
+        "400":
+          description: Bad request - request body is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchOrderResult"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchOrderResult"
   /api/orders/{id}:
     get:
       tags:
@@ -219,5 +251,28 @@ components:
           description: "Optional tip amount in EUR"
         paymentMethod:
           type: string
-          enum: [CASH, PAYPAL]
+          enum: [ CASH, PAYPAL ]
           description: "Payment method used for this order"
+    BatchOrderImport:
+      type: object
+      required:
+        - orders
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/PurchaseOrder"
+          minItems: 1
+    BatchOrderResult:
+      type: object
+      properties:
+        created:
+          type: array
+          items:
+            $ref: "#/components/schemas/PurchaseOrder"
+          description: "Successfully imported orders"
+        errors:
+          type: array
+          items:
+            type: string
+          description: "Error messages for orders that could not be imported"

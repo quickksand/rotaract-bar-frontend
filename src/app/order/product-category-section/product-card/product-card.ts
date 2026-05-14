@@ -1,5 +1,5 @@
 import {Component, computed, DestroyRef, ElementRef, inject, input, ViewChild} from '@angular/core';
-import {Product} from '../../../api/generated-api/models/product';
+import {ProductDto} from '../../../api/generated-api/models';
 import {CurrencyPipe} from '@angular/common';
 import {MatCard, MatCardHeader, MatCardSubtitle, MatCardTitle} from '@angular/material/card';
 import {OrderService} from '../../../services/order.service';
@@ -24,7 +24,7 @@ export class ProductCard {
 
   private destroyRef = inject(DestroyRef);
 
-  product = input.required<Product>();
+  product = input.required<ProductDto>();
 
   longPressEnabled = input.required<Boolean>()
   @ViewChild(MatCard, { read: ElementRef })

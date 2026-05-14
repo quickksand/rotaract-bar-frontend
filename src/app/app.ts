@@ -4,6 +4,7 @@ import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {OrderService} from './services/order.service';
 import {ConnectionStatusService} from './services/offline-capability/connection-status.service';
+import {OfflineQueueService} from './services/offline-capability/offlineQueue.service';
 
 
 @Component({
@@ -18,9 +19,10 @@ import {ConnectionStatusService} from './services/offline-capability/connection-
   styleUrl: './app.css'
 })
 export class App {
-  private orderService = inject(OrderService);
-  openOrderCount = toSignal(this.orderService.openOrderCount$, {initialValue: 0});
+  private _orderService = inject(OrderService);
+  private _connectionStatusService = inject(ConnectionStatusService);
+  private _offlineQueue = inject(OfflineQueueService);
 
-  private connectionStatusService= inject(ConnectionStatusService);
-  isOnline = toSignal(this.connectionStatusService.isOnline, {initialValue: navigator.onLine})
+  openOrderCount = toSignal(this._orderService.openOrderCount$, {initialValue: 0});
+  isOnline = toSignal(this._connectionStatusService.isOnline, {initialValue: navigator.onLine});
 }

@@ -2,15 +2,15 @@ import {Component, inject} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {OrderSummary} from './order-summary/order-summary';
-import {map, Observable, tap} from 'rxjs';
-import {Product} from '../api/generated-api/models/product';
+import {catchError, finalize, from, map, Observable} from 'rxjs';
+import {ProductDto, PurchaseOrderDto} from '../api/generated-api/models';
 import {OrderService} from '../services/order.service';
 import {ProductsService} from '../services/drinks/products.service';
 import {HttpClient} from '@angular/common/http';
 import {ProductCategorySection} from './product-category-section/product-category-section.component';
 import {CategoryDisplayPipe} from './category-display.pipe';
 import {DepositSection} from './deposit-section/deposit-section';
-import {PurchaseOrder} from '../api/generated-api/models/purchase-order';
+import {OfflineQueueService} from '../services/offline-capability/offlineQueue.service';
 
 export interface OrderedItem {
   productId: number,
@@ -34,8 +34,9 @@ export interface OrderedItem {
 export class OrderComponent {
   protected orderService = inject(OrderService);
   protected productService = inject(ProductsService);
+  protected offlineQueueService = inject(OfflineQueueService);
 
-  protected products$: Observable<Product[] | undefined>;
+  protected products$: Observable<ProductDto[] | undefined>;
   protected categories$;
 
   constructor(private http: HttpClient) {
@@ -49,13 +50,14 @@ export class OrderComponent {
     );
   }
 
-  onSendOrder(paymentMethod: PurchaseOrder['paymentMethod'] = 'CASH') {
+  onSendOrder(paymentMethod: PurchaseOrderDto['paymentMethod'] = 'CASH') {
     const newOrder = this.orderService.convertToPurchaseOrderDto(paymentMethod);
     this.http.post<void>('api/orders', newOrder)
       .pipe(
-        tap(() => this.orderService.submitOrderToPreparation(paymentMethod))
+        catchError(() => from(this.offlineQueueService.enqueue(newOrder))),
+        finalize(() => this.orderService.submitOrderToPreparation(paymentMethod))
       )
-      .subscribe((res) => console.log('POST RESPONSE ', res))
+      .subscribe((res) => console.log('POST RESPONSE ', res));
   }
 
 }

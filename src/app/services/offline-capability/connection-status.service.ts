@@ -1,9 +1,8 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {
   catchError,
   combineLatest,
   distinctUntilChanged,
-  filter,
   fromEvent,
   map,
   merge,
@@ -13,7 +12,6 @@ import {
   startWith,
   switchMap,
   timer,
-  withLatestFrom
 } from "rxjs";
 import {HttpClient} from '@angular/common/http';
 
@@ -22,33 +20,29 @@ import {HttpClient} from '@angular/common/http';
 })
 export class ConnectionStatusService {
 
-  private isOnline$: Observable<boolean> = new Observable<boolean>();
+  private readonly http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {
-    const online$ = fromEvent(window, 'online').pipe(map((_) => true));
-    const offline$ = fromEvent(window, 'offline').pipe(map((_) => false));
-    const browserStatus$ = merge(online$, offline$).pipe(
+  readonly isOnline$: Observable<boolean>;
+
+  constructor() {
+    const browserStatus$ = merge(
+      fromEvent(window, 'online').pipe(map(() => true)),
+      fromEvent(window, 'offline').pipe(map(() => false))
+    ).pipe(startWith(navigator.onLine));
+
+    const serverStatus$ = merge(
+      timer(0, 30000),
+      fromEvent(window, 'online')
+    ).pipe(
+      switchMap(() =>
+        this.http.get('/actuator/health').pipe(
+          map(() => true),
+          catchError(() => of(false))
+        )
+      ),
       startWith(navigator.onLine)
     );
 
-
-    // TODO Leon Polling hinterfragen - ggf. Websockets?
-    const serverStatus$ = timer(0, 30000).pipe(
-      withLatestFrom(browserStatus$),
-      filter(([timer, status]) => status === true),
-      switchMap(() => this.http.get('/api/products').pipe(
-        map(() => true),
-        catchError(() => of(false)))
-      )
-    );
-
-    /* Warning Edge Case: An extensive wait
-      If Server is offline (false) and then Browser
-      => serverStatus emits nothing
-      => Browser back online => browserStatus true
-      => combineLatest(true, false)
-      => wait an extra 10s for new serverStatus emit
-    */
     this.isOnline$ = combineLatest([browserStatus$, serverStatus$]).pipe(
       map(([browser, server]) => browser && server),
       distinctUntilChanged(),
