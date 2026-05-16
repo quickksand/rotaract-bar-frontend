@@ -59,8 +59,28 @@
     </div>
   </header>
 
-  <div class="overflow-hidden min-h-0">
-    <router-outlet></router-outlet>
+  <div class="overflow-hidden min-h-0 relative">
+    @if (productsLoadFailed()) {
+      <div class="absolute inset-0 flex flex-col">
+        <img src="jaeger-exit.png" alt="" class="absolute inset-0 w-full h-full object-cover">
+        <div class="relative flex flex-1 items-center justify-center p-6">
+          <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
+            <div class="text-5xl mb-4">📡</div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Keine Verbindung</h2>
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+              Server nicht erreichbar und kein lokaler Cache vorhanden.<br>
+              Bitte Backend starten und neu laden.
+            </p>
+            <button (click)="reload()"
+                    class="px-6 py-2.5 bg-rotaract-cranberry text-white font-semibold rounded-lg hover:opacity-90 transition-opacity">
+              Neu laden
+            </button>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <router-outlet></router-outlet>
+    }
   </div>
 
 </div>

@@ -5,6 +5,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {OrderService} from './services/order.service';
 import {ConnectionStatusService} from './services/offline-capability/connection-status.service';
 import {OfflineQueueService} from './services/offline-capability/offlineQueue.service';
+import {ProductsService} from './services/drinks/products.service';
 
 
 @Component({
@@ -22,8 +23,14 @@ export class App {
   private _orderService = inject(OrderService);
   private _connectionStatusService = inject(ConnectionStatusService);
   private _offlineQueue = inject(OfflineQueueService);
+  private _productsService = inject(ProductsService);
 
   openOrderCount = toSignal(this._orderService.openOrderCount$, {initialValue: 0});
   isOnline = toSignal(this._connectionStatusService.isOnline, {initialValue: navigator.onLine});
   failedSyncCount = toSignal(this._offlineQueue.failedCount$, {initialValue: 0});
+  productsLoadFailed = toSignal(this._productsService.loadFailed$, {initialValue: false});
+
+  reload() {
+    window.location.reload();
+  }
 }
