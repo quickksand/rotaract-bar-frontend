@@ -104,7 +104,8 @@ export class OfflineQueueService {
               db.clear('orders');
               this._queueLength$.next(0);
             } else {
-              this.moveAllToDeadLetter(db, queuedOrders, result.errors!.join(' · '));
+              const failed = this.findFailedOrders(queuedOrders, result.created ?? []);
+              this.moveToDeadLetter(db, failed, result.errors!.join(' · '));
             }
           },
           error: err => console.error('Batch-Import fehlgeschlagen, Queue bleibt erhalten:', err)
@@ -113,7 +114,39 @@ export class OfflineQueueService {
     );
   }
 
-  private moveAllToDeadLetter(db: any, queuedOrders: QueuedOrder[], reason: string): void {
+  // Identifies which queued orders were NOT returned in `created` using content fingerprinting.
+  // Uses a counting map to handle duplicate orders correctly.
+  private findFailedOrders(queued: QueuedOrder[], created: PurchaseOrderDto[]): QueuedOrder[] {
+    const remaining = new Map<string, number>();
+    for (const o of created) {
+      const fp = this.fingerprint(o);
+      remaining.set(fp, (remaining.get(fp) ?? 0) + 1);
+    }
+    const failed: QueuedOrder[] = [];
+    for (const q of queued) {
+      const fp = this.fingerprint(q.order);
+      const count = remaining.get(fp) ?? 0;
+      if (count > 0) {
+        remaining.set(fp, count - 1);
+      } else {
+        failed.push(q);
+      }
+    }
+    return failed;
+  }
+
+  private fingerprint(order: PurchaseOrderDto): string {
+    const items = [...(order.items ?? [])].sort((a, b) => (a.productId ?? 0) - (b.productId ?? 0));
+    return JSON.stringify({
+      items,
+      paymentMethod: order.paymentMethod,
+      tipAmount: order.tipAmount ?? 0,
+      returnedCupsCount: order.returnedCupsCount ?? 0,
+      freeDrinkDiscount: order.freeDrinkDiscount ?? 0,
+    });
+  }
+
+  private moveToDeadLetter(db: any, queuedOrders: QueuedOrder[], reason: string): void {
     const now = new Date().toISOString();
     const tx = db.transaction(['orders', 'failed-orders'], 'readwrite');
     Promise.all([

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, effect, inject, signal} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {CurrencyPipe, DatePipe, NgTemplateOutlet} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
@@ -20,17 +20,22 @@ interface OrderSummary {
   templateUrl: './status.component.html',
   imports: [DatePipe, CurrencyPipe, NgTemplateOutlet, MatButtonModule],
 })
-export class StatusComponent implements OnInit {
+export class StatusComponent {
   private offlineQueue = inject(OfflineQueueService);
   private products = inject(ProductsService);
 
   queueLength = toSignal(this.offlineQueue.queueLength, { initialValue: 0 });
+  failedCount = toSignal(this.offlineQueue.failedCount$, { initialValue: 0 });
   pendingOrders = signal<QueuedOrder[]>([]);
   failedOrders = signal<FailedOrderEntry[]>([]);
   expandedIndices = signal<Set<string>>(new Set());
 
-  ngOnInit() {
-    this.reload();
+  constructor() {
+    effect(() => {
+      this.queueLength();
+      this.failedCount();
+      this.reload();
+    });
   }
 
   isExpanded(id: string): boolean {
