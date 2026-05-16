@@ -8,9 +8,10 @@ import {provideRouter} from '@angular/router';
 import localeDE from '@angular/common/locales/de';
 
 import {routes} from './app.routes';
-import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {registerLocaleData} from '@angular/common';
 import {ApiConfiguration} from './api/generated-api/api-configuration';
+import {orderSubmissionInterceptor} from './services/offline-capability/order-submission-interceptor';
 
 registerLocaleData(localeDE);
 
@@ -19,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([orderSubmissionInterceptor])),
     { provide: LOCALE_ID, useValue: 'de' },
     { provide: ApiConfiguration, useValue: { rootUrl: '' } },
   ]
