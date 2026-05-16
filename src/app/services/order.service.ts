@@ -454,8 +454,6 @@ export class OrderService {
   private getIngredients(productId: number): string[] {
     const product = this._productService.getProductById(productId);
 
-    console.log(product)
-
     if (product?.ingredientIds) {
         return this._ingredientsService.getIngredientsByIds(product.ingredientIds)
           .map(ingredient => ingredient.name || 'Unbekannt');
