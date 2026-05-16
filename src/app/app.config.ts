@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import {provideRouter} from '@angular/router';
 import localeDE from '@angular/common/locales/de';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 
 import {routes} from './app.routes';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([orderSubmissionInterceptor])),
+    provideAnimationsAsync(),
     { provide: LOCALE_ID, useValue: 'de' },
     { provide: ApiConfiguration, useValue: { rootUrl: '' } },
   ]

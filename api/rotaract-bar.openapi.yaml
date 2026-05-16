@@ -253,6 +253,16 @@ components:
           type: string
           enum: [ CASH, PAYPAL ]
           description: "Payment method used for this order"
+        freeDrinksEarned:
+          type: integer
+          format: int32
+          minimum: 0
+          description: "Number of free drinks earned via stamp card in this order"
+        freeDrinkDiscount:
+          type: number
+          format: double
+          minimum: 0
+          description: "Free drink discount applied via stamp card in EUR"
     BatchOrderImport:
       type: object
       required:

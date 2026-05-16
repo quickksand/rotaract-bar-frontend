@@ -25,4 +25,5 @@ export class App {
 
   openOrderCount = toSignal(this._orderService.openOrderCount$, {initialValue: 0});
   isOnline = toSignal(this._connectionStatusService.isOnline, {initialValue: navigator.onLine});
+  failedSyncCount = toSignal(this._offlineQueue.failedCount$, {initialValue: 0});
 }

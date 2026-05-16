@@ -383,11 +383,17 @@ export class OrderService {
 
   convertToPurchaseOrderDto(paymentMethod: PurchaseOrderDto['paymentMethod'] = 'CASH'): PurchaseOrderDto {
     const tip = this._tipAmount$.getValue();
+    const stampCardEnabled = this._stampCardEnabled$.getValue();
+    const freeDrinkDiscount = this._freeDrinkDiscount$.getValue();
     return {
       items: this._currentOrder$.getValue(),
       returnedCupsCount: this._returnedCupsCount$.getValue(),
       paymentMethod,
-      ...(tip > 0 && { tipAmount: tip })
+      ...(tip > 0 && { tipAmount: tip }),
+      ...(stampCardEnabled && freeDrinkDiscount > 0 && {
+        freeDrinksEarned: [...this._freeItemsByProduct$.getValue().values()].reduce((a, b) => a + b, 0),
+        freeDrinkDiscount,
+      }),
     };
   }
 
