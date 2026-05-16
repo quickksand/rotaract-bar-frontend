@@ -13,6 +13,7 @@ export class ProductsService {
 
   private http = inject(HttpClient);
   private _products$ = new BehaviorSubject<ProductDto[] | undefined>(undefined);
+  private _loadFailed$ = new BehaviorSubject<boolean>(false);
 
   constructor() {
     this.http.get<ProductDto[]>('/api/products')
@@ -20,7 +21,9 @@ export class ProductsService {
         tap(products => localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(products))),
         catchError(() => {
           const cached = localStorage.getItem(PRODUCTS_CACHE_KEY);
-          return cached ? of(JSON.parse(cached) as ProductDto[]) : EMPTY;
+          if (cached) return of(JSON.parse(cached) as ProductDto[]);
+          this._loadFailed$.next(true);
+          return EMPTY;
         }),
         takeUntilDestroyed()
       )
@@ -29,6 +32,10 @@ export class ProductsService {
 
   get products$() {
     return this._products$.asObservable();
+  }
+
+  get loadFailed$() {
+    return this._loadFailed$.asObservable();
   }
 
   public getProductById(productId: number){
