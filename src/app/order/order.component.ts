@@ -57,7 +57,7 @@ export class OrderComponent {
         catchError(() => from(this.offlineQueueService.enqueue(newOrder))),
         finalize(() => this.orderService.submitOrderToPreparation(paymentMethod))
       )
-      .subscribe((res) => console.log('POST RESPONSE ', res));
+      .subscribe();
   }
 
 }
