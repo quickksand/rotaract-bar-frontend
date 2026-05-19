@@ -1,11 +1,11 @@
 import {inject, Injectable} from '@angular/core';
-import {PurchaseOrder} from '../api/generated-api/models';
+import {BatchOrderResultDto, OrderedItemDto, PurchaseOrderDto} from '../api/generated-api/models';
 import {BehaviorSubject, combineLatest, combineLatestWith, map, Observable, skip} from 'rxjs';
-import {ProductsService} from './products.service';
+import {ProductsService} from './drinks/products.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {PRICING} from '../constants/pricing.constants';
-import {OrderedItem as OrderedItemDto} from '../api/generated-api/models/ordered-item';
-import {IngredientsService} from './ingredients.service';
+import {IngredientsService} from './drinks/ingredients.service';
+import {PurchaseOrderControllerService} from '../api/generated-api/services/purchase-order-controller.service';
 
 interface PrepOrder {
   id: number;
@@ -15,7 +15,7 @@ interface PrepOrder {
   createdAt: Date;
   total: number;
   items: PrepOrderItem[];
-  originalOrder: PurchaseOrder;
+  originalOrder: PurchaseOrderDto;
 }
 
 interface PrepOrderItem {
@@ -57,7 +57,8 @@ export class OrderService {
   private _orderCounter = 1;
 
   private _productService = inject(ProductsService);
-  private _ingredientsService = inject(IngredientsService)
+  private _ingredientsService = inject(IngredientsService);
+  private _purchaseOrderControllerService = inject(PurchaseOrderControllerService);
 
   constructor() {
     this._currentOrder$
@@ -380,19 +381,22 @@ export class OrderService {
     this._tipAmount$.next(0);
   }
 
-  convertToPurchaseOrderDto(paymentMethod: PurchaseOrder['paymentMethod'] = 'CASH'): PurchaseOrder {
+  convertToPurchaseOrderDto(paymentMethod: PurchaseOrderDto['paymentMethod'] = 'CASH'): PurchaseOrderDto {
     const tip = this._tipAmount$.getValue();
+    const stampCardEnabled = this._stampCardEnabled$.getValue();
+    const freeDrinkDiscount = this._freeDrinkDiscount$.getValue();
     return {
       items: this._currentOrder$.getValue(),
       returnedCupsCount: this._returnedCupsCount$.getValue(),
       paymentMethod,
-      ...(tip > 0 && { tipAmount: tip })
+      ...(tip > 0 && { tipAmount: tip }),
+      ...(stampCardEnabled && freeDrinkDiscount > 0 && {
+        freeDrinksEarned: [...this._freeItemsByProduct$.getValue().values()].reduce((a, b) => a + b, 0),
+        freeDrinkDiscount,
+      }),
     };
   }
 
-  get preparationOrders$(): Observable<PrepOrder[]> {
-    return this._preparationOrders$.asObservable();
-  }
   get activePreparationOrders$(): Observable<PrepOrder[]> {
     return this._preparationOrders$.pipe(
       map(orders => orders.filter(order => order.status !== 'FERTIG'))
@@ -403,7 +407,7 @@ export class OrderService {
     return this.activePreparationOrders$.pipe(map(orders => orders.length));
   }
 
-  submitOrderToPreparation(paymentMethod: PurchaseOrder['paymentMethod'] = 'CASH'): void {
+  submitOrderToPreparation(paymentMethod: PurchaseOrderDto['paymentMethod'] = 'CASH'): void {
     const orderDto = this.convertToPurchaseOrderDto(paymentMethod);
 
     if (!orderDto.items || orderDto.items.length === 0) {
@@ -449,8 +453,6 @@ export class OrderService {
 
   private getIngredients(productId: number): string[] {
     const product = this._productService.getProductById(productId);
-
-    console.log(product)
 
     if (product?.ingredientIds) {
         return this._ingredientsService.getIngredientsByIds(product.ingredientIds)
@@ -511,9 +513,8 @@ export class OrderService {
     }
   }
 
-  // Getter für currentTotalValue
-  get currentTotalValue(): number {
-    return this._currentTotalSum$.getValue();
+  flushQueuedOrders(orders: PurchaseOrderDto[]): Observable<BatchOrderResultDto> {
+    return this._purchaseOrderControllerService.importOrdersBatch({ body: { orders } });
   }
 
 }

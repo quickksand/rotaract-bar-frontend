@@ -1,5 +1,5 @@
 import {Component, ElementRef, input, ViewChild} from '@angular/core';
-import {Product} from '../../api/generated-api/models/product';
+import {ProductDto} from '../../api/generated-api/models';
 import {ProductCard} from './product-card/product-card';
 
 @Component({
@@ -14,7 +14,7 @@ import {ProductCard} from './product-card/product-card';
 export class ProductCategorySection {
 
   categoryTitle = input.required<String>();
-  products = input.required<Product[]>();
+  products = input.required<ProductDto[]>();
   longPressEnabled = input.required<Boolean>();
 
   @ViewChild('carousel') carousel!: ElementRef;

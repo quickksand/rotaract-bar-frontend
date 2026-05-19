@@ -3,6 +3,9 @@ import {FormsModule} from '@angular/forms';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {OrderService} from './services/order.service';
+import {ConnectionStatusService} from './services/offline-capability/connection-status.service';
+import {OfflineQueueService} from './services/offline-capability/offlineQueue.service';
+import {ProductsService} from './services/drinks/products.service';
 
 
 @Component({
@@ -17,6 +20,17 @@ import {OrderService} from './services/order.service';
   styleUrl: './app.css'
 })
 export class App {
-  private orderService = inject(OrderService);
-  openOrderCount = toSignal(this.orderService.openOrderCount$, {initialValue: 0});
+  private _orderService = inject(OrderService);
+  private _connectionStatusService = inject(ConnectionStatusService);
+  private _offlineQueue = inject(OfflineQueueService);
+  private _productsService = inject(ProductsService);
+
+  openOrderCount = toSignal(this._orderService.openOrderCount$, {initialValue: 0});
+  isOnline = toSignal(this._connectionStatusService.isOnline, {initialValue: navigator.onLine});
+  failedSyncCount = toSignal(this._offlineQueue.failedCount$, {initialValue: 0});
+  productsLoadFailed = toSignal(this._productsService.loadFailed$, {initialValue: false});
+
+  reload() {
+    window.location.reload();
+  }
 }

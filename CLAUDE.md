@@ -46,16 +46,36 @@ Application services consume the generated services:
 - Tip amount
 - Order preparation status tracking
 
+### Services
+
+All services live under `src/app/services/`.
+
+- `order.service.ts` — central state container (cart, deposit, stamp card, tip, prep orders)
+- `drinks/products.service.ts` — loads products from API; falls back to `localStorage` cache on failure
+- `drinks/ingredients.service.ts` — loads ingredients from API; falls back to `localStorage` cache on failure
+- `offline-capability/connection-status.service.ts` — combines browser `online/offline` events with HTTP polling every 30 s; exposes `isOnline$: Observable<boolean>`
+- `offline-capability/offlineQueue.service.ts` — IndexedDB queue (`asf-offline-queue`) for offline order storage; infrastructure exists but is not yet wired into the order submission path (see `docs/us-5-offline-requirements.md`)
+
 ### Component Architecture
 
-Uses Angular 20 standalone components (no NgModules). The order feature is split into sub-components:
+Uses Angular 21 standalone components (no NgModules). The order feature is split into sub-components:
 - `OrderSummary` — basket view and totals
 - `ProductCategorySection` — products grid per category
 - `DepositSection` — cup deposit management
 - `StampCardSection` — stamp card visualization
+- `ShotQuantityDialog` — modal for custom quantity and bottle sale pricing
 
 Product categories: `DRINKS`, `BEER_WINE_NONALC`, `SHOTS`.
 
 ### Styling
 
 Tailwind CSS 4 + Angular Material (Azure Blue theme). Locale is set to German (`de`).
+
+## Docs
+
+AIUP artifacts are in `docs/`:
+
+- `docs/use_cases.puml` — PlantUML use case diagram (two roles: Kassierer, Barkeeper; typically the same person)
+- `docs/use_cases/` — one spec per use case (UC-001 through UC-005)
+- `docs/entity_model.md` — Mermaid ER diagram + attribute tables for the four API entities
+- `docs/us-5-offline-requirements.md` — offline capability requirements and work packages (partially implemented)
