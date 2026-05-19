@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {openDB} from 'idb';
 import {PurchaseOrderDto} from '../../api/generated-api/models';
-import {BehaviorSubject, filter, Observable, pairwise} from 'rxjs';
+import {BehaviorSubject, filter, Observable, pairwise, startWith, take} from 'rxjs';
 import {ConnectionStatusService} from './connection-status.service';
 import {OrderService} from '../order.service';
 
@@ -62,6 +62,7 @@ export class OfflineQueueService {
 
     this.connectionStatusService.isOnline
       .pipe(
+        startWith(false as boolean),
         pairwise(),
         filter(([previous, current]) => !previous && current)
       )
@@ -72,7 +73,12 @@ export class OfflineQueueService {
     const entry: QueuedOrder = { order, enqueuedAt: new Date().toISOString() };
     return this.dbPromise
       .then(db => db.add('orders', entry))
-      .then(() => this._queueLength$.next(this._queueLength$.value + 1));
+      .then(() => {
+        this._queueLength$.next(this._queueLength$.value + 1);
+        this.connectionStatusService.isOnline.pipe(take(1)).subscribe(online => {
+          if (online) this.flushQueue();
+        });
+      });
   }
 
   public getPendingOrders(): Promise<QueuedOrder[]> {

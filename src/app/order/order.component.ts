@@ -2,7 +2,7 @@ import {Component, inject} from '@angular/core';
 import {AsyncPipe} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {OrderSummary} from './order-summary/order-summary';
-import {catchError, finalize, from, map, Observable} from 'rxjs';
+import {catchError, from, map, Observable} from 'rxjs';
 import {ProductDto, PurchaseOrderDto} from '../api/generated-api/models';
 import {OrderService} from '../services/order.service';
 import {ProductsService} from '../services/drinks/products.service';
@@ -54,10 +54,12 @@ export class OrderComponent {
     const newOrder = this.orderService.convertToPurchaseOrderDto(paymentMethod);
     this.http.post<void>('api/orders', newOrder)
       .pipe(
-        catchError(() => from(this.offlineQueueService.enqueue(newOrder))),
-        finalize(() => this.orderService.submitOrderToPreparation(paymentMethod))
+        catchError(() => from(this.offlineQueueService.enqueue(newOrder)))
       )
-      .subscribe();
+      .subscribe({
+        next: () => this.orderService.submitOrderToPreparation(paymentMethod),
+        error: err => console.error('Bestellung konnte weder gesendet noch gespeichert werden:', err)
+      });
   }
 
 }

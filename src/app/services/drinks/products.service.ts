@@ -38,12 +38,11 @@ export class ProductsService {
     return this._loadFailed$.asObservable();
   }
 
-  public getProductById(productId: number){
-    return this._products$.getValue()!.find(product => product.id === productId)
+  public getProductById(productId: number): ProductDto | undefined {
+    return this._products$.getValue()?.find(product => product.id === productId);
   }
 
   public getProductsByCategory(category: string): ProductDto[] {
-    return this._products$.getValue()!.filter(p => p.category === category);
-
+    return this._products$.getValue()?.filter(p => p.category === category) ?? [];
   }
 }
