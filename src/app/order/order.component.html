@@ -25,12 +25,18 @@
       <app-order-summary/>
       <div class="flex gap-3 pt-2 pb-1">
         <button matButton
-          class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
+          [disabled]="isOrderEmpty()"
+          class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold transition-opacity"
+          [class.opacity-35]="isOrderEmpty()"
+          [class.cursor-not-allowed]="isOrderEmpty()"
           (click)="onSendOrder('CASH')">
           💵 BAR
         </button>
         <button matButton
-          class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
+          [disabled]="isOrderEmpty()"
+          class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold transition-opacity"
+          [class.opacity-35]="isOrderEmpty()"
+          [class.cursor-not-allowed]="isOrderEmpty()"
           (click)="onSendOrder('PAYPAL')">
           🅿 PAYPAL
         </button>

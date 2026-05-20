@@ -34,6 +34,9 @@
                       [class.line-through]="item.status === 'FERTIG'"
                       [class.text-gray-400]="item.status === 'FERTIG'">
                   {{item.name}}
+                  @if (item.bottleSale) {
+                    <span class="ml-2 text-xs font-semibold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">🍾 Flasche</span>
+                  }
                 </span>
 
                 <div class="flex gap-2">

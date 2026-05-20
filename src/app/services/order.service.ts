@@ -24,6 +24,7 @@ interface PrepOrderItem {
   status: 'OFFEN' | 'IN_ARBEIT' | 'FERTIG';
   productId: number;
   ingredients?: string[];
+  bottleSale?: boolean;
 }
 
 @Injectable({
@@ -244,6 +245,10 @@ export class OrderService {
     map(([total, tip]) => total + tip)
   );
 
+  readonly isOrderEmpty$ = combineLatest([this._currentOrder$, this._returnedCupsCount$]).pipe(
+    map(([items, returnedCups]) => items.length === 0 && returnedCups === 0)
+  );
+
   get orderTotalWithTipValue(): number {
     return this._currentTotalSum$.getValue() + this._tipAmount$.getValue();
   }
@@ -446,7 +451,8 @@ export class OrderService {
           quantity: item.quantity!,
           status: 'OFFEN' as const,
           productId: item.productId!,
-          ingredients: this.getIngredients(item.productId!)
+          ingredients: this.getIngredients(item.productId!),
+          bottleSale: item.bottleSale ?? false,
         };
       });
   }

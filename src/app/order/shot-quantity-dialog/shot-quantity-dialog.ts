@@ -32,7 +32,7 @@ export class ShotQuantityDialog {
   protected bottlePrice: number | null = null;
 
   protected readonly BOTTLE_QUANTITY = 25;
-  protected readonly BOTTLE_MIN_PRICE = 50;
+  protected readonly BOTTLE_SUGGESTED_PRICE = 50;
 
   protected get isMexikaner(): boolean {
     return this.data.product.name?.toLowerCase().includes('mexikaner') ?? false;
@@ -43,7 +43,7 @@ export class ShotQuantityDialog {
   }
 
   protected get confirmDisabled(): boolean {
-    return this.bottleSale && (this.bottlePrice == null || this.bottlePrice < this.BOTTLE_MIN_PRICE);
+    return this.bottleSale && (this.bottlePrice == null || this.bottlePrice <= 0);
   }
 
   setQuantity(n: number): void {

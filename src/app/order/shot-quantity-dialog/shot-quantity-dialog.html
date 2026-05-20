@@ -40,9 +40,9 @@
         <mat-form-field class="w-full mt-3">
           <mat-label>Gezahlter Betrag (€)</mat-label>
           <input matInput type="number" [(ngModel)]="bottlePrice"
-                 [placeholder]="BOTTLE_MIN_PRICE.toString()"
-                 [min]="BOTTLE_MIN_PRICE">
-          <mat-hint>Mindestpreis {{ BOTTLE_MIN_PRICE }} €</mat-hint>
+                 [placeholder]="'z.B. ' + BOTTLE_SUGGESTED_PRICE"
+                 min="1" class="placeholder:text-gray-300">
+          <mat-hint>Richtwert: {{ BOTTLE_SUGGESTED_PRICE }} €</mat-hint>
         </mat-form-field>
       }
     </div>

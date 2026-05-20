@@ -1,4 +1,5 @@
 import {Component, inject} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {AsyncPipe} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {OrderSummary} from './order-summary/order-summary';
@@ -35,6 +36,7 @@ export class OrderComponent {
   protected orderService = inject(OrderService);
   protected productService = inject(ProductsService);
   protected offlineQueueService = inject(OfflineQueueService);
+  protected isOrderEmpty = toSignal(this.orderService.isOrderEmpty$, { initialValue: true });
 
   protected products$: Observable<ProductDto[] | undefined>;
   protected categories$;
