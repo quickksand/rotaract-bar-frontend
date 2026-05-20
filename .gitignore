@@ -45,3 +45,6 @@ Thumbs.db
 # Generated APIs
 generated-api
 src/app/api
+
+# Production secrets — set adminPin locally before building, never commit
+src/environments/environment.prod.ts

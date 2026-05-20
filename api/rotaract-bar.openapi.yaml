@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: OpenAPI definition
-  version: 1.1.0
+  version: 1.2.0
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -83,6 +83,47 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Product"
+  /api/products/meta:
+    get:
+      tags:
+        - product-controller
+      operationId: getProductsMeta
+      summary: Get product metadata including the last price update timestamp
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsMeta"
+  /api/products/{id}:
+    patch:
+      tags:
+        - product-controller
+      operationId: updateProduct
+      summary: Update price and/or stock status of a single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
   /api/ingredients:
     get:
       tags:
@@ -211,6 +252,10 @@ components:
             type: integer
             format: int64
           description: "List of ingredient IDs for this product"
+        outOfStock:
+          type: boolean
+          default: false
+          description: "When true, the product is hidden from the order view"
       required:
         - id
         - name
@@ -286,3 +331,23 @@ components:
           items:
             type: string
           description: "Error messages for orders that could not be imported"
+    ProductsMeta:
+      type: object
+      required:
+        - productsUpdatedAt
+      properties:
+        productsUpdatedAt:
+          type: string
+          format: date-time
+          description: "Timestamp of the last change to any product (price or stock status)"
+    UpdateProductRequest:
+      type: object
+      properties:
+        price:
+          type: number
+          format: double
+          minimum: 0
+          description: "New price for the product"
+        outOfStock:
+          type: boolean
+          description: "New stock status for the product"
