@@ -38,15 +38,13 @@
   <!-- Horizontal Scrollable Cards -->
   <div #carousel class="carousel-container overflow-x-auto pb-2 flex gap-4">
       @for (product of products(); track product.id) {
-        @if (!product.outOfStock) {
-          <div class="carousel-item min-w-[180px] flex-shrink-0 w-48">
-            <app-product-card
-              [product]="product"
-              [longPressEnabled]="longPressEnabled()"
-              class="h-36"
-            />
-          </div>
-        }
+        <div class="carousel-item min-w-[180px] flex-shrink-0 w-48">
+          <app-product-card
+            [product]="product"
+            [longPressEnabled]="longPressEnabled()"
+            class="h-36"
+          />
+        </div>
       }
   </div>
 </section>
