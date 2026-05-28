@@ -40,6 +40,9 @@
 
                   <!-- Price input -->
                   <div class="flex items-center gap-1.5 shrink-0">
+                    @if (editedPrices[product.id] !== product.originalPrice) {
+                      <span class="text-xs text-gray-400">({{ product.originalPrice | number:'1.2-2':'de' }} €)</span>
+                    }
                     <input
                       type="number"
                       step="0.10"
@@ -48,8 +51,9 @@
                       [name]="'price-' + product.id"
                       [disabled]="editedOutOfStock[product.id]"
                       class="w-20 text-right text-sm border rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-400"
-                      [class.border-blue-400]="editedPrices[product.id] !== originalPrices[product.id]"
-                      [class.border-gray-300]="editedPrices[product.id] === originalPrices[product.id]"
+                      [class.border-green-400]="editedPrices[product.id] < product.originalPrice"
+                      [class.border-orange-400]="editedPrices[product.id] > product.originalPrice"
+                      [class.border-gray-300]="editedPrices[product.id] === product.originalPrice"
                     />
                     <span class="text-sm text-gray-500">€</span>
                   </div>
@@ -65,22 +69,22 @@
     <!-- Footer -->
     <div class="shrink-0 px-6 py-4 border-t border-gray-200 flex items-center justify-between gap-4">
       @if (saveError) {
-        <p class="text-sm text-red-600">Speichern fehlgeschlagen. Backend erreichbar?</p>
-      } @else if (!isDirty && !saving) {
-        <p class="text-sm text-gray-400">Keine Änderungen</p>
+        <p class="text-sm text-red-600">Aktion fehlgeschlagen. Backend erreichbar?</p>
+      } @else if (saving) {
+        <p class="text-sm text-gray-500">Wird gespeichert…</p>
+      } @else if (resetting) {
+        <p class="text-sm text-gray-500">Preise werden zurückgesetzt…</p>
       } @else {
-        <p class="text-sm text-gray-500">
-          {{ saving ? 'Wird gespeichert…' : 'Ungespeicherte Änderungen' }}
-        </p>
+        <p class="text-sm text-gray-400">&nbsp;</p>
       }
       <div class="flex gap-2">
-        @if (isDirty) {
-          <button mat-stroked-button (click)="reset()" [disabled]="saving">Zurücksetzen</button>
-        }
+        <button mat-stroked-button (click)="resetToDefaults()" [disabled]="saving || resetting">
+          Auf Standardpreise zurücksetzen
+        </button>
         <button
           mat-flat-button
           (click)="save()"
-          [disabled]="!isDirty || !isValid || saving"
+          [disabled]="!isValid || saving || resetting"
         >
           Speichern
         </button>

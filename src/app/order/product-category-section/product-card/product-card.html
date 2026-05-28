@@ -1,13 +1,28 @@
 <mat-card class="!p-2 !pb-4 !border-l-2 !transition-all !duration-200"
           appearance="outlined"
-          [class.!border-l-4]="quantity() > 0"
+          [class.!border-l-4]="quantity() > 0 || isDiscounted()"
           [class.!border-l-rotaract-cranberry]="quantity() > 0"
+          [class.!border-l-green-500]="isDiscounted() && quantity() === 0"
 
           (click)="onCardClick()">
 
   <mat-card-header>
     <mat-card-title class="!line-clamp-1 !leading-tight">{{product().name}}</mat-card-title>
-    <mat-card-subtitle>{{ product().price | currency : 'EUR' : "symbol" : '1.2-2': 'de' }}</mat-card-subtitle>
+    <mat-card-subtitle>
+      @if (isDiscounted()) {
+        <span class="line-through text-gray-400 mr-1">{{ product().originalPrice | currency : 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+        <span class="text-green-600 font-semibold">{{ product().price | currency : 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+      } @else {
+        {{ product().price | currency : 'EUR' : 'symbol' : '1.2-2' : 'de' }}
+      }
+    </mat-card-subtitle>
+
+    <!-- Discount Badge -->
+    @if (isDiscounted() && quantity() === 0) {
+      <div class="absolute -right-2.5 bg-green-100 text-green-800 rounded-full px-2 h-7 flex items-center justify-center font-bold text-xs">
+        −{{ discountPercent() }}%
+      </div>
+    }
 
     <!-- Quantity Badge (nur wenn > 0) -->
     @if(quantity() > 0) {

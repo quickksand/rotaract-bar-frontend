@@ -3,6 +3,7 @@ import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {filter, forkJoin, take} from 'rxjs';
 import {MatButton} from '@angular/material/button';
+import {DecimalPipe} from '@angular/common';
 import {ProductDto} from '../api/generated-api/models';
 import {ProductControllerService} from '../api/generated-api/services';
 import {ProductsService} from '../services/drinks/products.service';
@@ -11,7 +12,7 @@ import {CategoryDisplayPipe} from '../order/category-display.pipe';
 
 @Component({
   selector: 'app-admin',
-  imports: [FormsModule, MatButton, CategoryDisplayPipe],
+  imports: [FormsModule, MatButton, CategoryDisplayPipe, DecimalPipe],
   templateUrl: './admin.component.html',
 })
 export class AdminComponent implements OnInit {
@@ -24,13 +25,12 @@ export class AdminComponent implements OnInit {
 
   products: ProductDto[] = [];
   editedPrices: Record<number, number> = {};
-  originalPrices: Record<number, number> = {};
   editedOutOfStock: Record<number, boolean> = {};
-  originalOutOfStock: Record<number, boolean> = {};
 
   loading = true;
   saving = false;
   saveError = false;
+  resetting = false;
 
   ngOnInit(): void {
     this.productsService.products$.pipe(
@@ -40,9 +40,7 @@ export class AdminComponent implements OnInit {
       this.products = products!;
       products!.forEach(p => {
         this.editedPrices[p.id] = p.price;
-        this.originalPrices[p.id] = p.price;
         this.editedOutOfStock[p.id] = p.outOfStock ?? false;
-        this.originalOutOfStock[p.id] = p.outOfStock ?? false;
       });
       this.loading = false;
     });
@@ -52,13 +50,6 @@ export class AdminComponent implements OnInit {
     return this.products.filter(p => p.category === category);
   }
 
-  get isDirty(): boolean {
-    return this.products.some(p =>
-      this.editedPrices[p.id] !== this.originalPrices[p.id] ||
-      this.editedOutOfStock[p.id] !== this.originalOutOfStock[p.id]
-    );
-  }
-
   get isValid(): boolean {
     return Object.values(this.editedPrices).every(p => typeof p === 'number' && p > 0);
   }
@@ -66,8 +57,8 @@ export class AdminComponent implements OnInit {
   save(): void {
     const changes = this.products
       .filter(p =>
-        this.editedPrices[p.id] !== this.originalPrices[p.id] ||
-        this.editedOutOfStock[p.id] !== this.originalOutOfStock[p.id]
+        this.editedPrices[p.id] !== p.price ||
+        this.editedOutOfStock[p.id] !== (p.outOfStock ?? false)
       )
       .map(p =>
         this.productApi.updateProduct({
@@ -86,8 +77,11 @@ export class AdminComponent implements OnInit {
 
     forkJoin(changes).subscribe({
       next: () => {
-        this.originalPrices = { ...this.editedPrices };
-        this.originalOutOfStock = { ...this.editedOutOfStock };
+  // TODO LEON redundanter Code für Update Products; (loadProducts reicht, für Cache wichtig)
+        // this.products.forEach(p => {
+        //   p.price = this.editedPrices[p.id];
+        //   p.outOfStock = this.editedOutOfStock[p.id];
+        // });
         this.productsService.loadProducts();
         this.saving = false;
       },
@@ -98,10 +92,25 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  reset(): void {
-    this.editedPrices = { ...this.originalPrices };
-    this.editedOutOfStock = { ...this.originalOutOfStock };
+  resetToDefaults(): void {
+    this.resetting = true;
     this.saveError = false;
+
+    this.productApi.resetProducts().subscribe({
+      next: (resetProducts) => {
+        this.products = resetProducts;
+        resetProducts.forEach(p => {
+          this.editedPrices[p.id] = p.price;
+          this.editedOutOfStock[p.id] = p.outOfStock ?? false;
+        });
+        this.productsService.loadProducts();
+        this.resetting = false;
+      },
+      error: () => {
+        this.resetting = false;
+        this.saveError = true;
+      }
+    });
   }
 
   logout(): void {

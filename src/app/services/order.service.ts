@@ -216,6 +216,21 @@ export class OrderService {
     })
   );
 
+  /** Aktionsrabatt: Summe der Ersparnis durch reduzierte Preise (originalPrice − price) × quantity */
+  readonly discountSavings$: Observable<number> = this._currentOrder$.pipe(
+    combineLatestWith(this._productService.products$),
+    map(([order, products]) => {
+      let savings = 0;
+      order.forEach(item => {
+        const product = products?.find(p => p.id === item.productId);
+        if (product && product.price < product.originalPrice && !item.bottleSale) {
+          savings += (product.originalPrice - product.price) * item.quantity!;
+        }
+      });
+      return Math.round(savings * 100) / 100;
+    })
+  );
+
   get donateablePfandAmountValue(): number {
     return Math.max(0, -this._currentTotalSum$.getValue());
   }

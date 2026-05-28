@@ -40,6 +40,12 @@ export class ProductCard {
     return order!.find(item => item.productId === productId)?.quantity || 0;
   });
 
+  isDiscounted = computed(() => this.product().price < this.product().originalPrice);
+  discountPercent = computed(() => {
+    const p = this.product();
+    return Math.round((1 - p.price / p.originalPrice) * 100);
+  });
+
   ngAfterViewInit() {
     if (this.longPressEnabled()) {
 
