@@ -1,5 +1,5 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
-  <main class="lg:col-span-8 bg-gray-50 p-6 overflow-y-auto -mb-6">
+  <main class="lg:col-span-8 bg-gray-50 pt-6 px-6 overflow-y-auto">
 
     @if(products$ | async) {
 
@@ -20,7 +20,13 @@
     }
   </main>
 
-  <aside class="lg:col-span-4 bg-white border-l p-6 overflow-y-auto">
+<!--  <div class="lg:hidden flex items-center gap-3 px-6 py-4 bg-linear-to-b from-gray-50 to-white">-->
+<!--    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-rotaract-cranberry to-transparent"></div>-->
+<!--    <span class="text-xs font-bold text-rotaract-cranberry tracking-widest uppercase">Kasse</span>-->
+<!--    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-rotaract-cranberry to-transparent"></div>-->
+<!--  </div>-->
+
+  <aside class="lg:col-span-4 bg-linear-to-b from-gray-50 to-white border-t lg:border-t-0 lg:bg-white border-l p-6 overflow-y-auto">
     <div class="h-full overflow-y-auto">
       <app-order-summary/>
 
