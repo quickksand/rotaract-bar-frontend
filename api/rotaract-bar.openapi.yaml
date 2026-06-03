@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: OpenAPI definition
-  version: 1.3.0
+  version: 1.4.0
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -139,6 +139,27 @@ paths:
                 $ref: "#/components/schemas/Product"
         "404":
           description: Product not found
+  /api/auth/login:
+    post:
+      tags:
+        - auth-controller
+      operationId: login
+      summary: Authenticate with admin PIN and receive a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid PIN
   /api/ingredients:
     get:
       tags:
@@ -372,3 +393,19 @@ components:
         outOfStock:
           type: boolean
           description: "New stock status for the product"
+    LoginRequest:
+      type: object
+      required:
+        - pin
+      properties:
+        pin:
+          type: string
+          description: "Admin PIN for authentication"
+    LoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: "JWT token for subsequent admin requests"

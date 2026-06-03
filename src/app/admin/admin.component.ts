@@ -114,7 +114,7 @@ export class AdminComponent implements OnInit {
   }
 
   logout(): void {
-    this.auth.lock();
+    this.auth.logout();
     this.router.navigate(['/admin/login']);
   }
 }

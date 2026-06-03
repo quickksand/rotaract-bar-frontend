@@ -17,13 +17,20 @@ export class AdminLoginComponent {
 
   pin = '';
   error = signal(false);
+  submitting = signal(false);
 
   submit(): void {
-    if (this.auth.unlock(this.pin)) {
-      this.router.navigate(['/admin']);
-    } else {
-      this.error.set(true);
-      this.pin = '';
-    }
+    this.submitting.set(true);
+    this.error.set(false);
+
+    this.auth.unlock(this.pin).subscribe(success => {
+      this.submitting.set(false);
+      if (success) {
+        this.router.navigate(['/admin']);
+      } else {
+        this.error.set(true);
+        this.pin = '';
+      }
+    });
   }
 }

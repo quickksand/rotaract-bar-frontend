@@ -19,7 +19,9 @@
         }
       </mat-form-field>
 
-      <button mat-flat-button type="submit" [disabled]="!pin">Anmelden</button>
+      <button mat-flat-button type="submit" [disabled]="!pin || submitting()">
+        {{ submitting() ? 'Prüfe…' : 'Anmelden' }}
+      </button>
     </form>
   </div>
 </div>
