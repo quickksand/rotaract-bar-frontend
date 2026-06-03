@@ -72,27 +72,35 @@
       </div>
     }
 
-    <!-- Stempelkarten-Hinweis (sichtbar auch wenn Panel eingeklappt) -->
-    @let freeDiscount = (orderService.freeDrinkDiscount$ | async)!;
+    <!-- Stempelkarten-Hinweis & Badges (sichtbar wenn Panel eingeklappt) -->
+    @let freeDrinks = (orderService.freeDrinksCount$ | async)!;
     @let newStamps = (orderService.newStampCardStamps$ | async);
     @let showPfandBadge = (orderService.newTokensNeeded$ | async)! > 0;
-    @if (!mobileCartExpanded && (freeDiscount > 0 || newStamps !== null || showPfandBadge)) {
-      <div class="flex flex-wrap justify-center gap-1.5 px-4 pt-2">
-        @if (freeDiscount > 0) {
-          <span
-            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-green-100 text-green-800">
-            🎫 {{ freeDiscount | currency:'EUR':'symbol':'1.2-2':'de' }} gratis
-          </span>
+    @let nudge = (orderService.stampCardNudge$ | async);
+    @if (!mobileCartExpanded && (freeDrinks > 0 || newStamps !== null || showPfandBadge || nudge)) {
+      <div class="flex flex-wrap justify-center gap-2 px-4 pt-2">
+        @if (nudge) {
+          <button
+            (click)="onStampCardNudge()"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200 animate-pulse-subtle active:bg-violet-200 transition-colors min-h-[32px]">
+            🎫 Stempelkarte?
+          </button>
         }
+<!--        @if (freeDrinks > 0) {-->
+<!--          <span-->
+<!--            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 min-h-[32px]">-->
+<!--            🎫 {{ freeDrinks }}x gratis-->
+<!--          </span>-->
+<!--        }-->
         @if (newStamps !== null) {
           <span
-            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-violet-100 text-violet-800">
-            🎫 Neue Karte
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800 min-h-[32px]">
+            🎫 Neue Karte {{ newStamps }}/4
           </span>
         }
         @if (showPfandBadge) {
           <span
-            class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 min-h-[32px]">
             🪙 {{ orderService.newTokensNeeded$ | async }}x Pfand
           </span>
         }

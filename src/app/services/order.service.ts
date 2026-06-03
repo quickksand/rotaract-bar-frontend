@@ -283,6 +283,26 @@ export class OrderService {
     return this._stampCardEnabled$.asObservable();
   }
 
+  /** true wenn stempelbare Drinks im Warenkorb liegen, die Stempelkarte aber nicht aktiv ist */
+  readonly stampCardNudge$: Observable<boolean> = combineLatest([
+    this._currentOrder$,
+    this._productService.products$,
+    this._stampCardEnabled$
+  ]).pipe(
+    map(([order, products, enabled]) => {
+      if (enabled) return false;
+      return order.some(item => {
+        const product = products?.find(p => p.id === item.productId);
+        return product?.category === 'DRINKS';
+      });
+    })
+  );
+
+  /** Gesamtanzahl der durch Stempelkarte verdienten Gratisdrinks */
+  readonly freeDrinksCount$: Observable<number> = this._freeItemsByProduct$.pipe(
+    map(m => Array.from(m.values()).reduce((sum, v) => sum + v, 0))
+  );
+
   get stampCardEnabledValue(): boolean {
     return this._stampCardEnabled$.getValue();
   }

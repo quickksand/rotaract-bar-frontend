@@ -68,4 +68,10 @@ export class OrderComponent {
       });
   }
 
+  /** Stempelkarte aktivieren und Details aufklappen, damit der Kassierer den Status setzen kann */
+  onStampCardNudge(): void {
+    this.orderService.toggleStampCardEnabled();
+    this.mobileCartExpanded = true;
+  }
+
 }

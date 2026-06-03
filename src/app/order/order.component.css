@@ -3,3 +3,13 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Dezenter Puls für Stempelkarten-Nudge – fällt auf, nervt aber nicht */
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s ease-in-out 3;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
