@@ -1,17 +1,17 @@
 <div class="h-screen grid grid-rows-[auto_1fr] max-w-none">
 
-  <header class="sticky bg-gray-100 border-b py-5">
-    <div class="flex justify-between items-center px-5">
-      <div class="flex items-center gap-3">
+  <header class="sticky bg-gray-100 border-b py-2 lg:py-5">
+    <div class="flex justify-between items-center px-3 lg:px-5">
+      <div class="flex items-center gap-2 lg:gap-3">
         <a routerLink="/status" class="relative inline-block">
-          <img src="rac_logo.svg" alt="" class="h-10 w-auto">
+          <img src="rac_logo.svg" alt="" class="h-8 lg:h-10 w-auto">
           @if (failedSyncCount() > 0) {
             <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-600 text-[10px] font-bold text-white ring-2 ring-white">
               {{ failedSyncCount() }}
             </span>
           }
         </a>
-        <span class="text-m lg:text-xl font-bold text-gray-800">Rotaract Bar System</span>
+        <span class="hidden sm:inline text-m lg:text-xl font-bold text-gray-800">Rotaract Bar System</span>
         @if(!isOnline()){
           <a routerLink="/status" class="inline-flex items-center gap-1.5 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
             <span class="relative flex h-2 w-2 shrink-0">
@@ -26,29 +26,14 @@
       <nav class="flex gap-2">
         <button routerLink="/order"
                 routerLinkActive="bg-rotaract-cranberry text-white"
-                class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
-          📋 Bestellung
+                class="px-3 lg:px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
+          📋 <span class="hidden sm:inline">Bestellung</span>
         </button>
 
-<!--     TODO LEON - Klären, welches Design wir wollen-->
-        <!-- Variante A: kleiner Badge
         <button routerLink="/preparation"
                 routerLinkActive="bg-rotaract-cranberry text-white"
-                class="relative px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
-          🍹 Zubereitung
-          @if (openOrderCount() > 0) {
-            <div class="absolute -top-2 -right-2 bg-rotaract-cranberry text-white ring-2 ring-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center font-bold text-xs">
-              {{ openOrderCount() }}
-            </div>
-          }
-        </button>
-        -->
-
-        <!-- Variante B: großer Badge -->
-        <button routerLink="/preparation"
-                routerLinkActive="bg-rotaract-cranberry text-white"
-                class="relative px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
-          🍹 Zubereitung
+                class="relative px-3 lg:px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-gray-200 hover:bg-gray-300">
+          🍹 <span class="hidden sm:inline">Zubereitung</span>
           @if (openOrderCount() > 0) {
             <div class="absolute -top-3.5 -right-3.5 bg-rotaract-cranberry text-white ring-[3px] ring-white rounded-full min-w-[2rem] h-8 px-1.5 flex items-center justify-center font-black text-base shadow-md">
               {{ openOrderCount() }}

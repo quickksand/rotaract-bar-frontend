@@ -1,5 +1,5 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
-  <main class="lg:col-span-8 bg-gray-50 pt-6 px-6 overflow-y-auto">
+  <main class="lg:col-span-8 bg-gray-50 pt-4 lg:pt-6 px-4 lg:px-6 overflow-y-auto pb-[72px] lg:pb-6">
 
     @if(products$ | async) {
 
@@ -20,24 +20,9 @@
     }
   </main>
 
-<!--  <div class="lg:hidden flex items-center gap-3 px-6 py-4 bg-linear-to-b from-gray-50 to-white">-->
-<!--    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-rotaract-cranberry to-transparent"></div>-->
-<!--    <span class="text-xs font-bold text-rotaract-cranberry tracking-widest uppercase">Kasse</span>-->
-<!--    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-rotaract-cranberry to-transparent"></div>-->
-<!--  </div>-->
-
-  <aside class="lg:col-span-4 bg-linear-to-b from-gray-50 to-white border-t lg:border-t-0 lg:bg-white border-l p-6 overflow-y-auto">
+  <aside class="hidden lg:block lg:col-span-4 bg-linear-to-b from-gray-50 to-white border-t lg:border-t-0 lg:bg-white border-l p-6 overflow-y-auto">
     <div class="h-full overflow-y-auto">
       <app-order-summary/>
-
-<!--      TODO HINT: FALLBACK NO PAYPAL -->
-<!--      <div class="flex justify-center pt-3">-->
-<!--        <button matButton-->
-<!--                class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"-->
-<!--                (click)="onSendOrder('CASH')">-->
-<!--          💵 BEZAHLEN-->
-<!--        </button>-->
-<!--      </div>-->
 
       <div class="flex gap-3 pt-2 pb-1">
         <button matButton
@@ -56,5 +41,52 @@
       </div>
       </div>
   </aside>
+
+  <!-- MOBILE: Sticky Bottom Bar -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] safe-area-bottom">
+
+    <!-- Aufklappbare Zusammenfassung -->
+    @if(mobileCartExpanded) {
+      <div class="max-h-[60vh] overflow-y-auto px-4 pt-3 pb-2 bg-gray-50">
+        <app-order-summary/>
+        <div class="flex justify-center pt-1 pb-2">
+          <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-full !text-sm" (click)="orderService.clearOrder()">ALLES LÖSCHEN</button>
+        </div>
+      </div>
+    }
+
+    <!-- Total + Toggle -->
+    <button
+      class="w-full flex items-center justify-between px-4 py-2 text-left"
+      (click)="mobileCartExpanded = !mobileCartExpanded"
+      [attr.aria-expanded]="mobileCartExpanded"
+      aria-label="Bestellübersicht anzeigen">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-bold text-brand-charcoal">
+          GESAMT
+        </span>
+        <span class="text-xs text-gray-400" [class.rotate-180]="mobileCartExpanded">▲</span>
+      </div>
+      <span class="text-lg font-black"
+            [class.text-rotaract-cranberry]="(orderService.orderTotalWithTip$ | async)! >= 0"
+            [class.text-green-600]="(orderService.orderTotalWithTip$ | async)! < 0">
+        {{ orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+      </span>
+    </button>
+
+    <!-- Bezahl-Buttons -->
+    <div class="flex gap-2 px-4 pb-3 pt-1">
+      <button matButton
+        class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold min-h-[48px]"
+        (click)="onSendOrder('CASH')">
+        💵 BAR
+      </button>
+      <button matButton
+        class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold min-h-[48px]"
+        (click)="onSendOrder('PAYPAL')">
+        🅿 PAYPAL
+      </button>
+    </div>
+  </div>
 
 </div>

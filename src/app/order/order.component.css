@@ -1,0 +1,5 @@
+/* iPhone Safe-Area für sticky Bottom-Bar */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+

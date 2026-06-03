@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, CurrencyPipe} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 import {OrderSummary} from './order-summary/order-summary';
 import {catchError, from, map, Observable} from 'rxjs';
@@ -22,6 +22,7 @@ export interface OrderedItem {
   selector: 'app-order',
   imports: [
     AsyncPipe,
+    CurrencyPipe,
     MatButton,
     OrderSummary,
     ProductCategorySection,
@@ -35,6 +36,8 @@ export class OrderComponent {
   protected orderService = inject(OrderService);
   protected productService = inject(ProductsService);
   protected offlineQueueService = inject(OfflineQueueService);
+
+  protected mobileCartExpanded = false;
 
   protected products$: Observable<ProductDto[] | undefined>;
   protected categories$;
@@ -57,7 +60,10 @@ export class OrderComponent {
         catchError(() => from(this.offlineQueueService.enqueue(newOrder)))
       )
       .subscribe({
-        next: () => this.orderService.submitOrderToPreparation(paymentMethod),
+        next: () => {
+          this.mobileCartExpanded = false;
+          this.orderService.submitOrderToPreparation(paymentMethod);
+        },
         error: err => console.error('Bestellung konnte weder gesendet noch gespeichert werden:', err)
       });
   }

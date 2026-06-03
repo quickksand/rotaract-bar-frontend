@@ -1,9 +1,9 @@
-<section class="mb-6">
+<section class="mb-4 lg:mb-6">
 
   <!-- Category Header -->
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex items-center justify-between mb-3 lg:mb-4">
     <div class="flex items-center gap-4">
-      <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <h2 class="text-lg lg:text-xl font-bold text-gray-800 flex items-center gap-2">
         {{categoryTitle()}}
       </h2>
     </div>
@@ -12,19 +12,21 @@
 
       <!-- Scroll Buttons (nur wenn mehr Products da sind) -->
       @if(products().length > 4) {
-        <div class="flex gap-1">
+        <div class="hidden lg:flex gap-1">
           <button
             class="bg-gray-200 hover:bg-gray-300 p-2 rounded-full transition-colors"
-            (click)="onSwipeRight()">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            (click)="onSwipeRight()"
+            aria-label="Vorherige Produkte anzeigen">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"></path>
             </svg>
           </button>
 
           <button
             class="bg-gray-200 hover:bg-gray-300 p-2 rounded-full transition-colors"
-            (click)="onSwipeLeft()">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            (click)="onSwipeLeft()"
+            aria-label="Nächste Produkte anzeigen">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
             </svg>
           </button>
@@ -33,12 +35,10 @@
     </div>
   </div>
 
-  <!--<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 p-4 mb-6">-->
-
   <!-- Horizontal Scrollable Cards -->
-  <div #carousel class="carousel-container overflow-x-auto pb-2 flex gap-4">
+  <div #carousel class="carousel-container overflow-x-auto pb-2 flex gap-3 lg:gap-4">
       @for (product of products(); track product.id) {
-        <div class="carousel-item min-w-[180px] flex-shrink-0 w-48">
+        <div class="carousel-item min-w-[140px] lg:min-w-[180px] flex-shrink-0 w-40 lg:w-48">
           <app-product-card
             [product]="product"
             [longPressEnabled]="longPressEnabled()"
