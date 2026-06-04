@@ -101,17 +101,17 @@
     @let nudge = (orderService.stampCardNudge$ | async);
     @if (!mobileCartExpanded && (walletStamps > 0 || showPfandBadge)) {
       <div class="flex flex-wrap justify-center gap-2 px-4 pt-2">
+        @if (showPfandBadge) {
+          <span
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 min-h-[32px]">
+            🪙 {{ orderService.newTokensNeeded$ | async }}x Pfand
+          </span>
+        }
         <!-- WALLET-WORKAROUND: Zeigt dem Kassierer, wie viele Stempel in der Wallet-App einzutragen sind (siehe walletStampsToAdd$ in OrderService) -->
         @if (walletStamps > 0) {
           <span
             class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800 min-h-[32px]">
             🎫 +{{ walletStamps }} Stempel
-          </span>
-        }
-        @if (showPfandBadge) {
-          <span
-            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 min-h-[32px]">
-            🪙 {{ orderService.newTokensNeeded$ | async }}x Pfand
           </span>
         }
       </div>
