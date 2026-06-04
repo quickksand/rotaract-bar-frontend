@@ -1,5 +1,5 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
-  <main #mainContent class="lg:col-span-8 bg-gray-50 pt-4 lg:pt-6 px-4 lg:px-6 overflow-y-auto pb-[140px] lg:pb-6"
+  <main #mainContent class="lg:col-span-8 bg-gray-50 pt-4 lg:pt-6 px-4 lg:px-6 overflow-y-auto pb-[68vh] md:pb-[140px] lg:pb-6"
         (scroll)="mobileCartExpanded = false">
 
     @if (products$ | async) {
@@ -9,8 +9,29 @@
       <app-stamp-card-section></app-stamp-card-section>
 
       @if (categories$ | async; as categories) {
+
+        <!-- Mobile: Sticky Kategorie-Navigation -->
+        <nav class="md:hidden sticky top-0 z-10 -mx-4 px-4 py-2 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200 mb-3"
+             aria-label="Produktkategorien">
+          <div class="flex gap-2" role="tablist">
+            @for (category of categories; track category) {
+              <button
+                role="tab"
+                class="flex-1 px-3 py-2 rounded-full text-xs font-bold transition-colors
+                       bg-white border border-gray-300 text-gray-700
+                       active:bg-rotaract-cranberry active:text-white active:border-rotaract-cranberry
+                       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rotaract-cranberry
+                       min-h-[36px]"
+                (click)="scrollToCategory(category)">
+                {{ category | categoryDisplay }}
+              </button>
+            }
+          </div>
+        </nav>
+
         @for (category of categories; track category) {
           <app-product-category-section
+            [id]="'category-' + category"
             [categoryTitle]="category | categoryDisplay"
             [products]="productService.getProductsByCategory(category)"
             [longPressEnabled]="category === 'SHOTS'"

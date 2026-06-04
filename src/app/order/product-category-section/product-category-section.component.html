@@ -35,10 +35,10 @@
     </div>
   </div>
 
-  <!-- Horizontal Scrollable Cards -->
-  <div #carousel class="carousel-container overflow-x-auto pb-2 flex gap-3 lg:gap-4">
+  <!-- Mobile: 2-Spalten-Grid | Tablet+: Horizontal Scrollable Carousel -->
+  <div #carousel class="grid grid-cols-2 gap-3 md:flex md:overflow-x-auto md:pb-2 md:gap-4 lg:gap-4 carousel-container">
       @for (product of products(); track product.id) {
-        <div class="carousel-item min-w-[140px] lg:min-w-[180px] flex-shrink-0 w-40 lg:w-48">
+        <div class="min-w-0 carousel-item md:min-w-[140px] lg:min-w-[180px] md:flex-shrink-0 md:w-40 lg:w-48">
           <app-product-card
             [product]="product"
             [longPressEnabled]="longPressEnabled()"

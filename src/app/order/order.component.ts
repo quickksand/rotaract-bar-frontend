@@ -70,6 +70,20 @@ export class OrderComponent {
       });
   }
 
+  /** Zur gewählten Produktkategorie scrollen (mobile Kategorie-Chips) */
+  scrollToCategory(category: string): void {
+    const el = document.getElementById('category-' + category);
+    if (el) {
+      const nav = document.querySelector('nav[aria-label="Produktkategorien"]');
+      const navHeight = nav?.getBoundingClientRect().height ?? 52;
+      const main = el.closest('main');
+      if (main) {
+        const elTop = el.offsetTop - main.offsetTop - navHeight - 8;
+        main.scrollTo({top: elTop, behavior: 'smooth'});
+      }
+    }
+  }
+
   /** Stempelkarte aktivieren und nach oben scrollen, damit der Kassierer den Status setzen kann */
   onStampCardNudge(): void {
     this.orderService.toggleStampCardEnabled();
