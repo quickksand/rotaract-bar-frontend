@@ -36,10 +36,20 @@ export class StampCardSection {
   /** Wallet-Positionen für die erste Reihe (1–5) und zweite Reihe (6–10) */
   protected readonly row1 = [1, 2, 3, 4, 5];
   protected readonly row2 = [6, 7, 8, 9, 10];
+  /** Alle 10 Positionen in einer Zeile mit visueller Trennung im Template */
+  protected readonly allPositions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  /** Positionen 5 und 10 sind Gratis-Slots (⭐) */
+  isBonusPos(pos: number): boolean {
+    return pos === 5 || pos === 10;
+  }
 
   readonly earnedFreeDrinksCount$ = this.orderService.freeItemsByProduct$.pipe(
     map(m => Array.from(m.values()).reduce((sum, v) => sum + v, 0))
   );
+
+  /** Wallet-Stempel die einzutragen sind (durchgereicht aus OrderService) */
+  readonly walletStampsToAdd$ = this.orderService.walletStampsToAdd$;
 
   /** Getter für Template-Zugriff auf den zentralen walletPosition-State */
   get walletPosition(): number {

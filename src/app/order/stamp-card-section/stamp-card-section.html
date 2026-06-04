@@ -3,11 +3,13 @@
   10er-Wallet-Ansicht statt 4er-Papierkarten.
   Rückbau: siehe JSDoc in stamp-card-section.ts
 -->
-<section class="mb-5 bg-violet-50 border border-violet-100 rounded-lg px-3 py-3">
+<section class="mb-3 lg:mb-8">
   @let enabled = (orderService.stampCardEnabled$ | async) === true;
   @let freeCount = (earnedFreeDrinksCount$ | async)!;
-  <div class="flex items-center gap-3" [class.mb-3]="enabled">
-    <span class="text-sm font-bold text-violet-800">🎫 Stempelkarte</span>
+
+  <!-- Überschrift mit Toggle — gleiches Pattern wie Pfand/Drinks -->
+  <div class="flex items-center gap-3 pb-3 lg:pb-4">
+    <h2 class="text-lg lg:text-xl font-bold">🎫 STEMPELKARTE</h2>
     <button
       class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none shrink-0"
       [class.bg-rotaract-cranberry]="enabled"
@@ -21,52 +23,71 @@
         [class.translate-x-1]="!enabled">
       </span>
     </button>
-
-    @if(enabled && freeCount > 0) {
-      <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-auto">
-        {{ freeCount }}x gratis
-      </span>
-    }
   </div>
 
   @if(enabled) {
-    <div class="pt-1">
-      <div class="flex justify-center gap-1">
+    <div class="p-3 lg:p-4 bg-gray-50 rounded-lg">
+
+      <p class="text-xs text-gray-500 mb-2">Aktueller Stand der Stempelkarte</p>
+
+      <!-- Reihe 1: Stempel 1–4 + Bonus ⭐ -->
+      <div class="flex items-center gap-1.5">
         @for(pos of row1; track pos) {
           <button
-            class="w-8 h-8 rounded-full border-2 font-bold text-xs transition-colors flex items-center justify-center"
-            [class.bg-amber-400]="pos === 5 && walletPosition >= 5"
-            [class.border-amber-400]="pos === 5 && walletPosition >= 5"
-            [class.bg-rotaract-cranberry]="pos !== 5 && walletPosition >= pos"
+            class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors flex items-center justify-center"
+            [class.bg-amber-400]="isBonusPos(pos) && walletPosition >= pos"
+            [class.border-amber-400]="isBonusPos(pos) && walletPosition >= pos"
+            [class.bg-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
             [class.text-white]="walletPosition >= pos"
-            [class.border-rotaract-cranberry]="pos !== 5 && walletPosition >= pos"
-            [class.border-gray-300]="walletPosition < pos && pos !== 5"
-            [class.border-gray-200]="walletPosition < pos && pos === 5"
-            [class.text-gray-300]="walletPosition < pos && pos === 5"
-            (click)="onWalletStampClick(pos)">
-            @if(pos === 5) { ⭐ } @else { {{ pos }} }
+            [class.border-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
+            [class.border-gray-300]="walletPosition < pos && !isBonusPos(pos)"
+            [class.border-dashed]="walletPosition < pos && isBonusPos(pos)"
+            [class.border-amber-300]="walletPosition < pos && isBonusPos(pos)"
+            [class.text-amber-300]="walletPosition < pos && isBonusPos(pos)"
+            (click)="onWalletStampClick(pos)"
+            [attr.aria-label]="isBonusPos(pos) ? 'Gratisdrink Position ' + pos : 'Stempel ' + pos">
+            @if(isBonusPos(pos)) { ⭐ } @else { {{ pos }} }
           </button>
         }
       </div>
-      <div class="flex justify-center gap-1 mt-1">
+
+      <!-- Reihe 2: Stempel 6–9 + Bonus ⭐ -->
+      <div class="flex items-center gap-1.5 mt-1.5">
         @for(pos of row2; track pos) {
           <button
-            class="w-8 h-8 rounded-full border-2 font-bold text-xs transition-colors flex items-center justify-center"
-            [class.bg-amber-400]="pos === 10 && walletPosition >= 10"
-            [class.border-amber-400]="pos === 10 && walletPosition >= 10"
-            [class.bg-rotaract-cranberry]="pos !== 10 && walletPosition >= pos"
+            class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors flex items-center justify-center"
+            [class.bg-amber-400]="isBonusPos(pos) && walletPosition >= pos"
+            [class.border-amber-400]="isBonusPos(pos) && walletPosition >= pos"
+            [class.bg-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
             [class.text-white]="walletPosition >= pos"
-            [class.border-rotaract-cranberry]="pos !== 10 && walletPosition >= pos"
-            [class.border-gray-300]="walletPosition < pos && pos !== 10"
-            [class.border-gray-200]="walletPosition < pos && pos === 10"
-            [class.text-gray-300]="walletPosition < pos && pos === 10"
-            (click)="onWalletStampClick(pos)">
-            @if(pos === 10) { ⭐ } @else { {{ pos }} }
+            [class.border-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
+            [class.border-gray-300]="walletPosition < pos && !isBonusPos(pos)"
+            [class.border-dashed]="walletPosition < pos && isBonusPos(pos)"
+            [class.border-amber-300]="walletPosition < pos && isBonusPos(pos)"
+            [class.text-amber-300]="walletPosition < pos && isBonusPos(pos)"
+            (click)="onWalletStampClick(pos)"
+            [attr.aria-label]="isBonusPos(pos) ? 'Gratisdrink Position ' + pos : 'Stempel ' + pos">
+            @if(isBonusPos(pos)) { ⭐ } @else { {{ pos }} }
           </button>
         }
       </div>
 
-
+      <!-- Badges: Stempel + Gratis nebeneinander -->
+      @let stamps = (walletStampsToAdd$ | async)!;
+      @if(stamps > 0 || freeCount > 0) {
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
+          @if(stamps > 0) {
+            <span class="bg-violet-100 text-violet-800 text-xs font-bold px-3 py-1 rounded-full">
+              +{{ stamps }} Stempel
+            </span>
+          }
+          @if(freeCount > 0) {
+            <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">
+              {{ freeCount }}x gratis
+            </span>
+          }
+        </div>
+      }
     </div>
   }
 </section>

@@ -6,6 +6,8 @@
 
       <app-deposit-section></app-deposit-section>
 
+      <app-stamp-card-section></app-stamp-card-section>
+
       @if (categories$ | async; as categories) {
         @for (category of categories; track category) {
           <app-product-category-section
