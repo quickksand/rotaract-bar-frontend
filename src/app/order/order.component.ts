@@ -10,6 +10,7 @@ import {HttpClient} from '@angular/common/http';
 import {ProductCategorySection} from './product-category-section/product-category-section.component';
 import {CategoryDisplayPipe} from './category-display.pipe';
 import {DepositSection} from './deposit-section/deposit-section';
+import {StampCardSection} from './stamp-card-section/stamp-card-section';
 import {OfflineQueueService} from '../services/offline-capability/offlineQueue.service';
 
 export interface OrderedItem {
@@ -27,7 +28,8 @@ export interface OrderedItem {
     OrderSummary,
     ProductCategorySection,
     CategoryDisplayPipe,
-    DepositSection
+    DepositSection,
+    StampCardSection
   ],
   templateUrl: './order.component.html',
   styleUrl: './order.component.css'
@@ -68,10 +70,26 @@ export class OrderComponent {
       });
   }
 
-  /** Stempelkarte aktivieren und Details aufklappen, damit der Kassierer den Status setzen kann */
+  /** Zur gewählten Produktkategorie scrollen (mobile Kategorie-Chips) */
+  scrollToCategory(category: string): void {
+    const el = document.getElementById('category-' + category);
+    if (el) {
+      const nav = document.querySelector('nav[aria-label="Produktkategorien"]');
+      const navHeight = nav?.getBoundingClientRect().height ?? 52;
+      const main = el.closest('main');
+      if (main) {
+        const elTop = el.offsetTop - main.offsetTop - navHeight - 8;
+        main.scrollTo({top: elTop, behavior: 'smooth'});
+      }
+    }
+  }
+
+  /** Stempelkarte aktivieren und nach oben scrollen, damit der Kassierer den Status setzen kann */
   onStampCardNudge(): void {
     this.orderService.toggleStampCardEnabled();
-    this.mobileCartExpanded = true;
+    // Zum Hauptbereich scrollen wo die Stempelkarte jetzt liegt
+    const mainEl = document.querySelector('main');
+    mainEl?.scrollTo({top: 0, behavior: 'smooth'});
   }
 
 }

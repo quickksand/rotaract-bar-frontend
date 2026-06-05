@@ -303,6 +303,44 @@ export class OrderService {
     map(m => Array.from(m.values()).reduce((sum, v) => sum + v, 0))
   );
 
+  /**
+   * WALLET-WORKAROUND (eingeführt 2026-06-03)
+   *
+   * Hintergrund:
+   * Die Stempelkarten-Logik im Kassensystem basiert auf 4er-Zyklen (4 Stempel → 5. Drink gratis).
+   * Kurzfristig wurde von Papierkarten auf eine Wallet-App umgestellt, die mit 10 Feldern arbeitet
+   * (jeder 5. und 10. Stempel = Gratisdrink). Die interne Berechnungslogik bleibt unverändert,
+   * da das Ergebnis identisch ist (alle 5 Drinks einer gratis).
+   *
+   * Problem:
+   * Die Wallet zählt ALLE Drinks als Stempel (inkl. Gratisdrinks), das Kassensystem jedoch nicht.
+   * Der Kassierer muss wissen, wie viele Stempel er in der Wallet-App eintragen soll —
+   * das ist schlicht die Gesamtanzahl bestellter Drinks (Kategorie DRINKS), egal ob bezahlt oder gratis.
+   *
+   * Rückbau:
+   * Wenn wieder auf Papierkarten oder ein anderes System umgestellt wird:
+   * 1. Dieses Observable löschen
+   * 2. Den „+X Stempel"-Badge aus order.component.html entfernen (suche nach „walletStampsToAdd")
+   * 3. Die Datei docs/stempelkarte-wallet-anleitung.md kann ebenfalls entfernt werden
+   */
+  readonly walletStampsToAdd$: Observable<number> = combineLatest([
+    this._currentOrder$,
+    this._productService.products$,
+    this._stampCardEnabled$
+  ]).pipe(
+    map(([order, products, enabled]) => {
+      if (!enabled) return 0;
+      let count = 0;
+      order.forEach(item => {
+        const product = products?.find(p => p.id === item.productId);
+        if (product?.category === 'DRINKS') {
+          count += item.quantity!;
+        }
+      });
+      return count;
+    })
+  );
+
   get stampCardEnabledValue(): boolean {
     return this._stampCardEnabled$.getValue();
   }
@@ -310,7 +348,25 @@ export class OrderService {
   toggleStampCardEnabled(): void {
     const next = !this._stampCardEnabled$.getValue();
     this._stampCardEnabled$.next(next);
-    if (!next) this._stampCardInputStatus$.next(0);
+    if (!next) {
+      this._stampCardInputStatus$.next(0);
+      this._walletPosition = 0;
+    }
+  }
+
+  /**
+   * WALLET-WORKAROUND: Wallet-Position (0–10) wird hier zentral gehalten,
+   * damit der State beim Ein-/Ausklappen des mobilen Panels erhalten bleibt.
+   * Rückbau: Property und Getter/Setter entfernen.
+   */
+  private _walletPosition = 0;
+
+  get walletPosition(): number {
+    return this._walletPosition;
+  }
+
+  set walletPosition(pos: number) {
+    this._walletPosition = pos;
   }
 
   get stampCardStatusValue(): number {
@@ -414,6 +470,7 @@ export class OrderService {
     this._freeItemsByProduct$.next(new Map());
     this._stampCardStatusAfter$.next(0);
     this._tipAmount$.next(0);
+    this._walletPosition = 0;
   }
 
   convertToPurchaseOrderDto(paymentMethod: PurchaseOrderDto['paymentMethod'] = 'CASH'): PurchaseOrderDto {

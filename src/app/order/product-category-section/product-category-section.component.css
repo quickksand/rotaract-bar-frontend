@@ -1,21 +1,16 @@
-.carousel-container {
-  /* Smooth scrolling */
-  scroll-behavior: smooth;
+@media (min-width: 768px) {
+  .carousel-container {
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
 
-  /*!* CSS Scroll Snap für präzise Card-Positioning *!*/
-  scroll-snap-type: x mandatory;
+  .carousel-container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
 
-  /*!* Hide scrollbar but keep functionality *!*/
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE/Edge */
-}
-
-.carousel-container::-webkit-scrollbar {
-  display: none;  /* Chrome/Safari */
-}
-
-
-.carousel-item {
-  /* Snap to each card */
-  scroll-snap-align: start;
+  .carousel-item {
+    scroll-snap-align: start;
+  }
 }

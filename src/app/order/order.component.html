@@ -1,14 +1,37 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
-  <main #mainContent class="lg:col-span-8 bg-gray-50 pt-4 lg:pt-6 px-4 lg:px-6 overflow-y-auto pb-[140px] lg:pb-6"
+  <main #mainContent class="lg:col-span-8 bg-gray-50 pt-4 lg:pt-6 px-4 lg:px-6 overflow-y-auto pb-[68vh] md:pb-[140px] lg:pb-6"
         (scroll)="mobileCartExpanded = false">
 
     @if (products$ | async) {
 
       <app-deposit-section></app-deposit-section>
 
+      <app-stamp-card-section></app-stamp-card-section>
+
       @if (categories$ | async; as categories) {
+
+        <!-- Mobile: Sticky Kategorie-Navigation -->
+        <nav class="md:hidden sticky top-0 z-10 -mx-4 px-4 py-2 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200 mb-3"
+             aria-label="Produktkategorien">
+          <div class="flex gap-2" role="tablist">
+            @for (category of categories; track category) {
+              <button
+                role="tab"
+                class="flex-1 px-3 py-2 rounded-full text-xs font-bold transition-colors
+                       bg-white border border-gray-300 text-gray-700
+                       active:bg-rotaract-cranberry active:text-white active:border-rotaract-cranberry
+                       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rotaract-cranberry
+                       min-h-[36px]"
+                (click)="scrollToCategory(category)">
+                {{ category | categoryDisplay }}
+              </button>
+            }
+          </div>
+        </nav>
+
         @for (category of categories; track category) {
           <app-product-category-section
+            [id]="'category-' + category"
             [categoryTitle]="category | categoryDisplay"
             [products]="productService.getProductsByCategory(category)"
             [longPressEnabled]="category === 'SHOTS'"
@@ -72,36 +95,23 @@
       </div>
     }
 
-    <!-- Stempelkarten-Hinweis & Badges (sichtbar wenn Panel eingeklappt) -->
-    @let freeDrinks = (orderService.freeDrinksCount$ | async)!;
-    @let newStamps = (orderService.newStampCardStamps$ | async);
+    <!-- Badges (sichtbar wenn Panel eingeklappt) -->
+    @let walletStamps = (orderService.walletStampsToAdd$ | async)!;
     @let showPfandBadge = (orderService.newTokensNeeded$ | async)! > 0;
     @let nudge = (orderService.stampCardNudge$ | async);
-    @if (!mobileCartExpanded && (freeDrinks > 0 || newStamps !== null || showPfandBadge || nudge)) {
+    @if (!mobileCartExpanded && (walletStamps > 0 || showPfandBadge)) {
       <div class="flex flex-wrap justify-center gap-2 px-4 pt-2">
-        @if (nudge) {
-          <button
-            (click)="onStampCardNudge()"
-            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200 animate-pulse-subtle active:bg-violet-200 transition-colors min-h-[32px]">
-            🎫 Stempelkarte?
-          </button>
-        }
-<!--        @if (freeDrinks > 0) {-->
-<!--          <span-->
-<!--            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 min-h-[32px]">-->
-<!--            🎫 {{ freeDrinks }}x gratis-->
-<!--          </span>-->
-<!--        }-->
-        @if (newStamps !== null) {
-          <span
-            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800 min-h-[32px]">
-            🎫 Neue Karte {{ newStamps }}/4
-          </span>
-        }
         @if (showPfandBadge) {
           <span
-            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 min-h-[32px]">
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 min-h-[32px]">
             🪙 {{ orderService.newTokensNeeded$ | async }}x Pfand
+          </span>
+        }
+        <!-- WALLET-WORKAROUND: Zeigt dem Kassierer, wie viele Stempel in der Wallet-App einzutragen sind (siehe walletStampsToAdd$ in OrderService) -->
+        @if (walletStamps > 0) {
+          <span
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800 min-h-[32px]">
+            🎫 +{{ walletStamps }} Stempel
           </span>
         }
       </div>
@@ -127,22 +137,27 @@
       </span>
     </button>
 
-    <!-- Bezahl-Buttons -->
-    <div class="flex justify-center px-4 pb-1 pt-1">
+    <!-- Stempelkarten-Nudge: auffälliges Banner über dem Bezahlen-Button -->
+    @if (nudge && !mobileCartExpanded) {
+      <button
+        (click)="onStampCardNudge()"
+        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-violet-100 border-y border-violet-200 text-violet-800 font-bold text-sm active:bg-violet-200 transition-colors stamp-nudge-highlight">
+        🎫 Stempelkarte aktivieren?
+      </button>
+      <div class="h-2"></div>
+    }
+
+    <!-- Bezahl-Button + Alles Löschen in einer Zeile -->
+    <div class="flex gap-2 px-4 pb-3" [class.pt-2]="!nudge" [class.pt-0]="nudge">
       <button matButton
-              class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold min-h-[48px]"
+              class="!bg-rotaract-cranberry !text-white !rounded-lg flex-[2] !py-3 !text-base !font-bold min-h-[48px]"
               (click)="onSendOrder('CASH')">
         💵 Bezahlen
       </button>
-<!--      <button matButton-->
-<!--              class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold min-h-[48px]"-->
-<!--              (click)="onSendOrder('PAYPAL')">-->
-<!--        🅿 PAYPAL-->
-<!--      </button>-->
-    </div>
-    <div class="flex justify-center px-4 pb-3 pt-1">
-      <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-full !text-sm"
-              (click)="orderService.clearOrder()">ALLES LÖSCHEN
+      <button matButton
+              class="!bg-white !border-1 !border-gray-300 !rounded-lg flex-1 !py-3 !text-xs !text-brand-charcoal min-h-[48px]"
+              (click)="orderService.clearOrder()">
+        Löschen
       </button>
     </div>
   </div>
