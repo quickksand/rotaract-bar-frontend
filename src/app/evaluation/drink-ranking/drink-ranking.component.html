@@ -1,0 +1,53 @@
+<section class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+
+  <header class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+    <h2 class="text-sm font-bold tracking-wide text-gray-700 uppercase">
+      @if (mode() === 'top') { Topseller } @else { Ladenhüter }
+    </h2>
+    <div class="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+      <button
+        type="button"
+        (click)="setMode('top')"
+        class="px-3 py-1 text-xs font-semibold rounded-md transition-colors"
+        [class.bg-white]="mode() === 'top'"
+        [class.shadow]="mode() === 'top'"
+        [class.text-rotaract-cranberry]="mode() === 'top'"
+        [class.text-gray-500]="mode() !== 'top'"
+      >
+        🔥 Top 10
+      </button>
+      <button
+        type="button"
+        (click)="setMode('flop')"
+        class="px-3 py-1 text-xs font-semibold rounded-md transition-colors"
+        [class.bg-white]="mode() === 'flop'"
+        [class.shadow]="mode() === 'flop'"
+        [class.text-rotaract-cranberry]="mode() === 'flop'"
+        [class.text-gray-500]="mode() !== 'flop'"
+      >
+        🐌 Flop 10
+      </button>
+    </div>
+  </header>
+
+  @if (entries().length === 0) {
+    <div class="px-4 py-6 text-center text-sm text-gray-400">Keine Verkäufe im gewählten Zeitraum.</div>
+  } @else {
+    <ul class="divide-y divide-gray-100">
+      @for (entry of entries(); track entry.productId) {
+        <li class="flex items-center gap-3 px-4 py-3">
+          <div class="w-7 text-right text-sm font-bold text-gray-400 tabular-nums">{{ entry.rank }}</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-gray-900 truncate">{{ entry.productName }}</div>
+            <div class="text-xs text-gray-500">{{ (entry.category ?? '') | categoryDisplay }}</div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-sm font-bold text-gray-900 tabular-nums">{{ entry.totalQuantitySold }}×</div>
+            <div class="text-xs text-gray-500 tabular-nums">{{ (entry.totalRevenue ?? 0) | number:'1.2-2':'de' }} €</div>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+</section>

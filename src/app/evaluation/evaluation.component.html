@@ -1,0 +1,95 @@
+<div class="h-full flex flex-col overflow-hidden">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+    <h1 class="text-xl font-bold text-gray-800">Auswertung</h1>
+    <button mat-stroked-button (click)="logout()">Abmelden</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 shrink-0">
+    <div class="flex flex-wrap items-end gap-3">
+
+      <label class="flex flex-col">
+        <span class="text-xs text-gray-500 mb-1">Jahr</span>
+        <select
+          [value]="year() ?? ''"
+          (change)="onYearChange($any($event.target).value)"
+          class="text-sm border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <option [value]="''">Alle</option>
+          @for (y of availableYears(); track y) {
+            <option [value]="y">{{ y }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="flex flex-col">
+        <span class="text-xs text-gray-500 mb-1">Tag</span>
+        <select
+          [value]="dayIndex() ?? ''"
+          (change)="onDayChange($any($event.target).value)"
+          class="text-sm border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-[12rem]"
+          [disabled]="availableDays().length === 0"
+        >
+          <option [value]="''">Alle Tage</option>
+          @for (day of availableDays(); track day.date.getTime(); let i = $index) {
+            <option [value]="i">{{ day.date | date:'EEEE, d. MMMM':undefined:'de' }} ({{ day.orderCount }})</option>
+          }
+        </select>
+      </label>
+
+      <label class="flex flex-col">
+        <span class="text-xs text-gray-500 mb-1">Startbecher</span>
+        <input
+          type="number"
+          min="0"
+          step="1"
+          [value]="startCups()"
+          (change)="onStartCupsChange($any($event.target).value)"
+          class="w-24 text-sm text-right border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </label>
+
+      <label class="flex flex-col">
+        <span class="text-xs text-gray-500 mb-1">Pfand / Becher (€)</span>
+        <input
+          type="number"
+          min="0"
+          step="0.50"
+          [value]="depositAmount()"
+          (change)="onDepositChange($any($event.target).value)"
+          class="w-24 text-sm text-right border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+      </label>
+
+      <div class="flex-1"></div>
+
+      <button mat-flat-button (click)="refresh()" [disabled]="loading()">
+        @if (loading()) { Lädt… } @else { Aktualisieren }
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+
+    @if (error()) {
+      <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        Daten konnten nicht geladen werden. Backend erreichbar? Letzter bekannter Stand bleibt sichtbar.
+      </div>
+    }
+
+    @if (summary(); as s) {
+      @if ((s.orderCount ?? 0) === 0) {
+        <div class="text-center text-gray-400 py-12">Noch keine Bestellungen für diesen Zeitraum.</div>
+      } @else {
+        <app-kpi-cards [summary]="s" />
+        <app-drink-ranking />
+      }
+    } @else if (!error()) {
+      <div class="text-center text-gray-400 py-12">Lade Auswertung…</div>
+    }
+
+  </div>
+</div>

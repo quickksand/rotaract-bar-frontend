@@ -4,6 +4,7 @@ import {PreparationComponent} from './preparation-component/preparation-componen
 import {StatusComponent} from './status/status.component';
 import {AdminComponent} from './admin/admin.component';
 import {AdminLoginComponent} from './admin/admin-login/admin-login.component';
+import {EvaluationComponent} from './evaluation/evaluation.component';
 import {adminGuard} from './guards/admin.guard';
 
 export const routes: Routes = [
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'status', component: StatusComponent },
   { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
   { path: 'admin/login', component: AdminLoginComponent },
+  { path: 'evaluation', component: EvaluationComponent, canActivate: [adminGuard] },
   // { path: '**', redirectTo: '/order' } // Fallback
 ];

@@ -1,0 +1,80 @@
+@if (summary; as s) {
+  <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+    <!-- Soll-Stand Kasse: prominent, full-width on small screens -->
+    <div class="sm:col-span-2 lg:col-span-3 rounded-xl border-2 border-rotaract-cranberry bg-rotaract-cranberry/5 p-5 shadow-sm">
+      <div class="text-xs font-bold tracking-widest text-rotaract-cranberry uppercase">Soll-Stand Kasse</div>
+      <div class="mt-1 text-4xl lg:text-5xl font-black text-gray-900">
+        {{ (s.expectedCashInRegister ?? 0) | number:'1.2-2':'de' }} <span class="text-2xl lg:text-3xl text-gray-500">€</span>
+      </div>
+      <div class="mt-1 text-xs text-gray-500">
+        Nur Bargeld &middot; Pfand-Saldo: {{ (s.cupsOutstanding ?? 0) }} × {{ (s.depositAmountPerCup ?? 0) | number:'1.2-2':'de' }} €
+      </div>
+    </div>
+
+    <!-- Umsatz -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold tracking-widest text-gray-400 uppercase">Umsatz</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900">
+        {{ (s.totalRevenue ?? 0) | number:'1.2-2':'de' }} <span class="text-base text-gray-500">€</span>
+      </div>
+      @if (s.cashRevenue != null) {
+        <div class="mt-1.5 flex gap-3 text-xs text-gray-500">
+          <span>💵 {{ s.cashRevenue | number:'1.2-2':'de' }} €</span>
+          <span>🔵 {{ (s.paypalRevenue ?? 0) | number:'1.2-2':'de' }} €</span>
+        </div>
+      }
+    </div>
+
+    <!-- Trinkgeld -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold tracking-widest text-gray-400 uppercase">Trinkgeld</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900">
+        {{ (s.totalTips ?? 0) | number:'1.2-2':'de' }} <span class="text-base text-gray-500">€</span>
+      </div>
+      @if (s.cashTips != null) {
+        <div class="mt-1.5 flex gap-3 text-xs text-gray-500">
+          <span>💵 {{ s.cashTips | number:'1.2-2':'de' }} €</span>
+          <span>🔵 {{ (s.paypalTips ?? 0) | number:'1.2-2':'de' }} €</span>
+        </div>
+      }
+    </div>
+
+    <!-- Bestellungen -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold tracking-widest text-gray-400 uppercase">Bestellungen</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900">{{ s.orderCount ?? 0 }}</div>
+    </div>
+
+    <!-- Becher ausgegeben -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="text-xs font-bold tracking-widest text-gray-400 uppercase">Becher ausgegeben</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900">{{ s.totalCupsIssued ?? 0 }}</div>
+      <div class="mt-1 text-xs text-gray-500">zurück: {{ s.totalCupsReturned ?? 0 }}</div>
+    </div>
+
+    <!-- Becher ausstehend -->
+    <div
+      class="rounded-xl border p-4 shadow-sm"
+      [class.bg-white]="(s.cupsOutstanding ?? 0) === 0"
+      [class.border-gray-200]="(s.cupsOutstanding ?? 0) === 0"
+      [class.bg-amber-50]="(s.cupsOutstanding ?? 0) > 0"
+      [class.border-amber-300]="(s.cupsOutstanding ?? 0) > 0"
+    >
+      <div class="text-xs font-bold tracking-widest uppercase"
+        [class.text-gray-400]="(s.cupsOutstanding ?? 0) === 0"
+        [class.text-amber-700]="(s.cupsOutstanding ?? 0) > 0">
+        Becher ausstehend
+      </div>
+      <div class="mt-1 text-2xl font-bold"
+        [class.text-gray-900]="(s.cupsOutstanding ?? 0) === 0"
+        [class.text-amber-900]="(s.cupsOutstanding ?? 0) > 0">
+        {{ s.cupsOutstanding ?? 0 }}
+      </div>
+      <div class="mt-1 text-xs text-gray-500">
+        Startbecher: {{ s.startCups ?? 0 }}
+      </div>
+    </div>
+
+  </div>
+}
