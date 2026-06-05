@@ -77,11 +77,10 @@ export class AdminComponent implements OnInit {
 
     forkJoin(changes).subscribe({
       next: () => {
-  // TODO LEON redundanter Code für Update Products; (loadProducts reicht, für Cache wichtig)
-        // this.products.forEach(p => {
-        //   p.price = this.editedPrices[p.id];
-        //   p.outOfStock = this.editedOutOfStock[p.id];
-        // });
+        this.products.forEach(p => {
+          p.price = this.editedPrices[p.id];
+          p.outOfStock = this.editedOutOfStock[p.id];
+        });
         this.productsService.loadProducts();
         this.saving = false;
       },
