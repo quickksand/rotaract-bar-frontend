@@ -32,6 +32,9 @@ export class EvaluationService {
   private readonly _startCups$ = new BehaviorSubject<number>(0);
   private readonly _depositAmountPerCup$ = new BehaviorSubject<number>(1.0);
 
+  private _autoSelectedYear = false;
+  private _autoSelectedDay = false;
+
   private readonly _refresh$ = new BehaviorSubject<number>(0);
   private readonly _error$ = new BehaviorSubject<boolean>(false);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
@@ -64,6 +67,7 @@ export class EvaluationService {
       });
       return Array.from(years).sort((a, b) => b - a);
     }),
+    tap(years => this.autoSelectYear(years)),
     shareReplay({bufferSize: 1, refCount: true})
   );
 
@@ -85,6 +89,7 @@ export class EvaluationService {
         });
       return Array.from(dayMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
     }),
+    tap(days => this.autoSelectDay(days)),
     shareReplay({bufferSize: 1, refCount: true})
   );
 
@@ -176,5 +181,32 @@ export class EvaluationService {
       ),
       shareReplay({bufferSize: 1, refCount: true})
     );
+  }
+
+  /**
+   * On first data load: select current year if it exists in data, otherwise fall back to "Alle".
+   */
+  private autoSelectYear(years: number[]): void {
+    if (this._autoSelectedYear) return;
+    this._autoSelectedYear = true;
+    const currentYear = new Date().getFullYear();
+    if (years.includes(currentYear)) {
+      this._year$.next(currentYear);
+    } else {
+      this._year$.next(null);
+    }
+  }
+
+  /**
+   * On first data load (or when year changes and day hasn't been manually set):
+   * select today if it exists in data, otherwise fall back to "Alle Tage".
+   */
+  private autoSelectDay(days: EventDay[]): void {
+    if (this._autoSelectedDay) return;
+    this._autoSelectedDay = true;
+    const today = new Date();
+    const todayKey = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    const idx = days.findIndex(d => d.date.getTime() === todayKey);
+    this._dayIndex$.next(idx >= 0 ? idx : null);
   }
 }

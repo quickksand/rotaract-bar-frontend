@@ -138,7 +138,7 @@ export class OrderService {
             if (product) {
               itemSum += item.customPrice ?? (product.price * item.quantity!);
 
-              if (product.category !== 'SHOTS') {
+              if (product.requiresDeposit) {
                 depositSum += PRICING.DEPOSIT_AMOUNT * item.quantity!;
               }
             }
@@ -208,7 +208,7 @@ export class OrderService {
       let depositCupsCount = 0;
       order.forEach(item => {
         const product = products?.find(p => p.id === item.productId);
-        if (product && product.category !== 'SHOTS') {
+        if (product && product.requiresDeposit) {
           depositCupsCount += item.quantity!;
         }
       });

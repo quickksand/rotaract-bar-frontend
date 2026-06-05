@@ -444,6 +444,10 @@ components:
           type: boolean
           default: false
           description: "When true, the product is hidden from the order view"
+        requiresDeposit:
+          type: boolean
+          default: false
+          description: "When true, each unit sold counts as a cup issued (for deposit/cup tracking)"
       required:
         - id
         - name

@@ -69,7 +69,7 @@ export class StatusComponent {
         ? item.customPrice
         : (product?.price ?? 0) * qty;
 
-      if (product?.category !== 'SHOTS') {
+      if (product?.requiresDeposit) {
         depositTotal += PRICING.DEPOSIT_AMOUNT * qty;
       }
     }

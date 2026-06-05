@@ -1,13 +1,13 @@
 <div class="h-full flex flex-col overflow-hidden">
 
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+  <header class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
     <h1 class="text-xl font-bold text-gray-800">Auswertung</h1>
     <button mat-stroked-button (click)="logout()">Abmelden</button>
-  </div>
+  </header>
 
   <!-- Filter bar -->
-  <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 shrink-0">
+  <div class="px-6 py-3 border-b border-gray-100 bg-gray-50 shrink-0" role="search" aria-label="Filter">
     <div class="flex flex-wrap items-end gap-3">
 
       <label class="flex flex-col">
@@ -39,43 +39,54 @@
         </select>
       </label>
 
-      <label class="flex flex-col">
-        <span class="text-xs text-gray-500 mb-1">Startbecher</span>
-        <input
-          type="number"
-          min="0"
-          step="1"
-          [value]="startCups()"
-          (change)="onStartCupsChange($any($event.target).value)"
-          class="w-24 text-sm text-right border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-      </label>
+      <details class="flex flex-col">
+        <summary class="text-xs text-gray-500 cursor-pointer select-none hover:text-gray-700">Erweitert ▸</summary>
+        <div class="flex flex-wrap gap-3 mt-2">
+          <label class="flex flex-col">
+            <span class="text-xs text-gray-500 mb-1">Startbecher</span>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              [value]="startCups()"
+              (change)="onStartCupsChange($any($event.target).value)"
+              class="w-24 text-sm text-right border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </label>
 
-      <label class="flex flex-col">
-        <span class="text-xs text-gray-500 mb-1">Pfand / Becher (€)</span>
-        <input
-          type="number"
-          min="0"
-          step="0.50"
-          [value]="depositAmount()"
-          (change)="onDepositChange($any($event.target).value)"
-          class="w-24 text-sm text-right border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-      </label>
+          <label class="flex flex-col">
+            <span class="text-xs text-gray-500 mb-1">Pfand / Becher (€)</span>
+            <input
+              type="number"
+              min="0"
+              step="0.50"
+              [value]="depositAmount()"
+              (change)="onDepositChange($any($event.target).value)"
+              class="w-24 text-sm text-right border rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </label>
+        </div>
+      </details>
 
       <div class="flex-1"></div>
 
-      <button mat-flat-button (click)="refresh()" [disabled]="loading()">
-        @if (loading()) { Lädt… } @else { Aktualisieren }
-      </button>
+      <div class="flex items-end gap-2">
+        <label class="flex items-center gap-1 text-xs text-gray-500 cursor-pointer select-none">
+          <input type="checkbox" [checked]="autoRefresh()" (change)="toggleAutoRefresh()" class="accent-blue-500" />
+          Auto (30s)
+        </label>
+        <button mat-flat-button (click)="refresh()" [disabled]="loading()">
+          @if (loading()) { Lädt… } @else { Aktualisieren }
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Content -->
-  <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+  <main class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
 
     @if (error()) {
-      <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <div role="alert" class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
         Daten konnten nicht geladen werden. Backend erreichbar? Letzter bekannter Stand bleibt sichtbar.
       </div>
     }
@@ -88,8 +99,8 @@
         <app-drink-ranking />
       }
     } @else if (!error()) {
-      <div class="text-center text-gray-400 py-12">Lade Auswertung…</div>
+      <div class="text-center text-gray-400 py-12" aria-live="polite">Lade Auswertung…</div>
     }
 
-  </div>
+  </main>
 </div>

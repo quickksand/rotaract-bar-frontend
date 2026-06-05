@@ -1,6 +1,6 @@
 import {Component, inject, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatButton} from '@angular/material/button';
@@ -14,6 +14,7 @@ import {AdminAuthService} from '../../services/admin-auth.service';
 export class AdminLoginComponent {
   private readonly auth = inject(AdminAuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   pin = '';
   error = signal(false);
@@ -26,7 +27,8 @@ export class AdminLoginComponent {
     this.auth.unlock(this.pin).subscribe(success => {
       this.submitting.set(false);
       if (success) {
-        this.router.navigate(['/admin']);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/admin';
+        this.router.navigateByUrl(returnUrl);
       } else {
         this.error.set(true);
         this.pin = '';

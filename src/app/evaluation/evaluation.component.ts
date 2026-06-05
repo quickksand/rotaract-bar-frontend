@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, signal} from '@angular/core';
 import {Router} from '@angular/router';
 import {DatePipe} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
@@ -15,10 +15,12 @@ import {DrinkRankingComponent} from './drink-ranking/drink-ranking.component';
   templateUrl: './evaluation.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EvaluationComponent {
+export class EvaluationComponent implements OnDestroy {
   private readonly evaluationService = inject(EvaluationService);
   private readonly auth = inject(AdminAuthService);
   private readonly router = inject(Router);
+
+  private autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly year = toSignal(this.evaluationService.year$, {initialValue: null as number | null});
   readonly dayIndex = toSignal(this.evaluationService.dayIndex$, {initialValue: null as number | null});
@@ -29,6 +31,8 @@ export class EvaluationComponent {
   readonly availableDays = toSignal(this.evaluationService.availableDays$, {initialValue: [] as {date: Date; orderCount: number}[]});
   readonly loading = toSignal(this.evaluationService.loading$, {initialValue: false});
   readonly error = toSignal(this.evaluationService.error$, {initialValue: false});
+
+  readonly autoRefresh = signal(false);
 
   onYearChange(value: string): void {
     this.evaluationService.selectYear(value === '' ? null : Number(value));
@@ -52,8 +56,29 @@ export class EvaluationComponent {
     this.evaluationService.refresh();
   }
 
+  toggleAutoRefresh(): void {
+    const next = !this.autoRefresh();
+    this.autoRefresh.set(next);
+    this.clearAutoRefresh();
+    if (next) {
+      this.autoRefreshTimer = setInterval(() => this.evaluationService.refresh(), 30_000);
+    }
+  }
+
   logout(): void {
+    this.clearAutoRefresh();
     this.auth.logout();
     this.router.navigate(['/admin/login']);
+  }
+
+  ngOnDestroy(): void {
+    this.clearAutoRefresh();
+  }
+
+  private clearAutoRefresh(): void {
+    if (this.autoRefreshTimer !== null) {
+      clearInterval(this.autoRefreshTimer);
+      this.autoRefreshTimer = null;
+    }
   }
 }

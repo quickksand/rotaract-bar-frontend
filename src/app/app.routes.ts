@@ -15,5 +15,7 @@ export const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
   { path: 'admin/login', component: AdminLoginComponent },
   { path: 'evaluation', component: EvaluationComponent, canActivate: [adminGuard] },
+  { path: 'zdf', redirectTo: '/evaluation', pathMatch: 'full' },
+  { path: 'auswertung', redirectTo: '/evaluation', pathMatch: 'full' },
   // { path: '**', redirectTo: '/order' } // Fallback
 ];
