@@ -216,6 +216,21 @@ export class OrderService {
     })
   );
 
+  /** Aktionsrabatt: Summe der Ersparnis durch reduzierte Preise (originalPrice − price) × quantity */
+  readonly discountSavings$: Observable<number> = this._currentOrder$.pipe(
+    combineLatestWith(this._productService.products$),
+    map(([order, products]) => {
+      let savings = 0;
+      order.forEach(item => {
+        const product = products?.find(p => p.id === item.productId);
+        if (product && product.price < product.originalPrice && !item.bottleSale) {
+          savings += (product.originalPrice - product.price) * item.quantity!;
+        }
+      });
+      return Math.round(savings * 100) / 100;
+    })
+  );
+
   get donateablePfandAmountValue(): number {
     return Math.max(0, -this._currentTotalSum$.getValue());
   }
@@ -267,6 +282,26 @@ export class OrderService {
   get stampCardEnabled$(): Observable<boolean> {
     return this._stampCardEnabled$.asObservable();
   }
+
+  /** true wenn stempelbare Drinks im Warenkorb liegen, die Stempelkarte aber nicht aktiv ist */
+  readonly stampCardNudge$: Observable<boolean> = combineLatest([
+    this._currentOrder$,
+    this._productService.products$,
+    this._stampCardEnabled$
+  ]).pipe(
+    map(([order, products, enabled]) => {
+      if (enabled) return false;
+      return order.some(item => {
+        const product = products?.find(p => p.id === item.productId);
+        return product?.category === 'DRINKS';
+      });
+    })
+  );
+
+  /** Gesamtanzahl der durch Stempelkarte verdienten Gratisdrinks */
+  readonly freeDrinksCount$: Observable<number> = this._freeItemsByProduct$.pipe(
+    map(m => Array.from(m.values()).reduce((sum, v) => sum + v, 0))
+  );
 
   get stampCardEnabledValue(): boolean {
     return this._stampCardEnabled$.getValue();

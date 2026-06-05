@@ -45,3 +45,5 @@ Thumbs.db
 # Generated APIs
 generated-api
 src/app/api
+
+src/environments/*

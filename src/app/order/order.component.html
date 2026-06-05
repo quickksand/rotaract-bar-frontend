@@ -1,12 +1,13 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 h-full">
-  <main class="lg:col-span-8 bg-gray-50 p-6 overflow-y-auto -mb-6">
+  <main #mainContent class="lg:col-span-8 bg-gray-50 pt-4 lg:pt-6 px-4 lg:px-6 overflow-y-auto pb-[140px] lg:pb-6"
+        (scroll)="mobileCartExpanded = false">
 
-    @if(products$ | async) {
+    @if (products$ | async) {
 
       <app-deposit-section></app-deposit-section>
 
-      @if(categories$ | async; as categories){
-        @for(category of categories; track category){
+      @if (categories$ | async; as categories) {
+        @for (category of categories; track category) {
           <app-product-category-section
             [categoryTitle]="category | categoryDisplay"
             [products]="productService.getProductsByCategory(category)"
@@ -20,25 +21,130 @@
     }
   </main>
 
-  <aside class="lg:col-span-4 bg-white border-l p-6 overflow-y-auto">
+  <aside
+    class="hidden lg:block lg:col-span-4 bg-linear-to-b from-gray-50 to-white border-t lg:border-t-0 lg:bg-white border-l p-6 overflow-y-auto">
     <div class="h-full overflow-y-auto">
       <app-order-summary/>
-      <div class="flex gap-3 pt-2 pb-1">
+
+      <div class="flex justify-center pt-3 pb-1">
         <button matButton
-          class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
-          (click)="onSendOrder('CASH')">
-          💵 BAR
-        </button>
-        <button matButton
-          class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
-          (click)="onSendOrder('PAYPAL')">
-          🅿 PAYPAL
+                class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"
+                (click)="onSendOrder('CASH')">
+          💵 BEZAHLEN
         </button>
       </div>
+
+<!--      <div class="flex gap-3 pt-2 pb-1">-->
+<!--        <button matButton-->
+<!--                class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"-->
+<!--                (click)="onSendOrder('CASH')">-->
+<!--          💵 BAR-->
+<!--        </button>-->
+<!--        <button matButton-->
+<!--                class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold"-->
+<!--                (click)="onSendOrder('PAYPAL')">-->
+<!--          🅿 PAYPAL-->
+<!--        </button>-->
+<!--      </div>-->
       <div class="flex justify-center pt-3">
-        <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-full" (click)="orderService.clearOrder()">ALLES LÖSCHEN</button>
+        <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-full"
+                (click)="orderService.clearOrder()">ALLES LÖSCHEN
+        </button>
       </div>
-      </div>
+    </div>
   </aside>
+
+  <!-- MOBILE: Backdrop wenn Cart aufgeklappt -->
+  @if (mobileCartExpanded) {
+    <div class="lg:hidden fixed inset-0 z-40 bg-black/30"
+         (click)="mobileCartExpanded = false"
+         aria-hidden="true"></div>
+  }
+
+  <!-- MOBILE: Sticky Bottom Bar -->
+  <div
+    class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] safe-area-bottom">
+
+    <!-- Aufklappbare Zusammenfassung -->
+    @if (mobileCartExpanded) {
+      <div class="max-h-[60vh] overflow-y-auto px-4 pt-3 pb-2 bg-gray-50">
+        <app-order-summary/>
+      </div>
+    }
+
+    <!-- Stempelkarten-Hinweis & Badges (sichtbar wenn Panel eingeklappt) -->
+    @let freeDrinks = (orderService.freeDrinksCount$ | async)!;
+    @let newStamps = (orderService.newStampCardStamps$ | async);
+    @let showPfandBadge = (orderService.newTokensNeeded$ | async)! > 0;
+    @let nudge = (orderService.stampCardNudge$ | async);
+    @if (!mobileCartExpanded && (freeDrinks > 0 || newStamps !== null || showPfandBadge || nudge)) {
+      <div class="flex flex-wrap justify-center gap-2 px-4 pt-2">
+        @if (nudge) {
+          <button
+            (click)="onStampCardNudge()"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-violet-50 text-violet-700 border border-violet-200 animate-pulse-subtle active:bg-violet-200 transition-colors min-h-[32px]">
+            🎫 Stempelkarte?
+          </button>
+        }
+<!--        @if (freeDrinks > 0) {-->
+<!--          <span-->
+<!--            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800 min-h-[32px]">-->
+<!--            🎫 {{ freeDrinks }}x gratis-->
+<!--          </span>-->
+<!--        }-->
+        @if (newStamps !== null) {
+          <span
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-violet-100 text-violet-800 min-h-[32px]">
+            🎫 Neue Karte {{ newStamps }}/4
+          </span>
+        }
+        @if (showPfandBadge) {
+          <span
+            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 min-h-[32px]">
+            🪙 {{ orderService.newTokensNeeded$ | async }}x Pfand
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Total + Toggle -->
+    <button
+      class="w-full flex items-center justify-between px-4 py-2 text-left"
+      (click)="mobileCartExpanded = !mobileCartExpanded"
+      [attr.aria-expanded]="mobileCartExpanded"
+      aria-label="Bestellübersicht anzeigen">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-bold text-brand-charcoal">
+          GESAMT
+        </span>
+        <span class="text-xs text-gray-400 transition-transform duration-200"
+              [class.rotate-180]="mobileCartExpanded">▲</span>
+      </div>
+      <span class="text-lg font-black"
+            [class.text-rotaract-cranberry]="(orderService.orderTotalWithTip$ | async)! >= 0"
+            [class.text-green-600]="(orderService.orderTotalWithTip$ | async)! < 0">
+        {{ orderService.orderTotalWithTip$ | async | currency:'EUR':'symbol':'1.2-2':'de' }}
+      </span>
+    </button>
+
+    <!-- Bezahl-Buttons -->
+    <div class="flex justify-center px-4 pb-1 pt-1">
+      <button matButton
+              class="!bg-rotaract-cranberry !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold min-h-[48px]"
+              (click)="onSendOrder('CASH')">
+        💵 Bezahlen
+      </button>
+<!--      <button matButton-->
+<!--              class="!bg-[#009cde] !text-white !rounded-lg flex-1 !py-3 !text-base !font-bold min-h-[48px]"-->
+<!--              (click)="onSendOrder('PAYPAL')">-->
+<!--        🅿 PAYPAL-->
+<!--      </button>-->
+    </div>
+    <div class="flex justify-center px-4 pb-3 pt-1">
+      <button matButton class="!bg-white !border-1 !border-b-rotaract-cranberry !rounded-lg w-full !text-sm"
+              (click)="orderService.clearOrder()">ALLES LÖSCHEN
+      </button>
+    </div>
+  </div>
 
 </div>

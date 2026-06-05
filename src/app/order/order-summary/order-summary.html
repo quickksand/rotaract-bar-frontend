@@ -1,4 +1,4 @@
-<h1 class="text-xl font-bold pb-4">📋 BESTELLUNG</h1>
+<h1 class="text-lg lg:text-xl font-bold pb-3 lg:pb-4">📋 BESTELLUNG</h1>
 <app-stamp-card-section></app-stamp-card-section>
 
 <div class="mb-0">
@@ -55,6 +55,7 @@
               </td>
             </tr>
           }
+
 
         <!-- Aufklappbare Details (Rechenweg) -->
         @if(currentOrder.length > 0 && ((this.orderService.freeDrinkDiscount$ | async)! > 0 || (this.orderService.currentDepositSum$ | async)! > 0 || (this.orderService.creditBalance$ | async)! > 0)) {
@@ -132,11 +133,17 @@
   }
 </div>
 
-<!-- Ausgabe-Badges: Pfandmarken & Stempelkarte -->
+<!-- Ausgabe-Badges: Pfandmarken, Stempelkarte & Ersparnis -->
 @let newStamps = (orderService.newStampCardStamps$ | async);
 @let showPfand = (this.orderService.currentDepositSum$ | async)! > 0 && (orderService.newTokensNeeded$ | async)! > 0;
-@if(showPfand || newStamps !== null) {
+@let savings = (orderService.discountSavings$ | async)!;
+@if(showPfand || newStamps !== null || savings > 0) {
   <div class="flex flex-col items-center gap-2 pt-1 pb-4">
+    @if(savings > 0) {
+      <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+        🏷️ {{ savings | currency:'EUR':'symbol':'1.2-2':'de' }} durch Aktionspreise gespart
+      </span>
+    }
     @if(showPfand) {
       <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-200 text-emerald-800">
         🪙

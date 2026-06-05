@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: OpenAPI definition
-  version: 1.1.0
+  version: 1.4.0
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -83,6 +83,91 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Product"
+  /api/products/reset:
+    post:
+      tags:
+        - product-controller
+      operationId: resetProducts
+      summary: Reset all products to their hardcoded default prices and stock status
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized — valid Bearer token required
+  /api/products/meta:
+    get:
+      tags:
+        - product-controller
+      operationId: getProductsMeta
+      summary: Get product metadata including the last price update timestamp
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsMeta"
+  /api/products/{id}:
+    patch:
+      tags:
+        - product-controller
+      operationId: updateProduct
+      summary: Update price and/or stock status of a single product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized — valid Bearer token required
+        "404":
+          description: Product not found
+  /api/auth/login:
+    post:
+      tags:
+        - auth-controller
+      operationId: login
+      summary: Authenticate with admin PIN and receive a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid PIN
   /api/ingredients:
     get:
       tags:
@@ -164,6 +249,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/PurchaseOrder"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     OrderedItem:
       type: object
@@ -198,6 +288,11 @@ components:
         price:
           type: number
           format: double
+        originalPrice:
+          type: number
+          format: double
+          readOnly: true
+          description: "Original (non-discounted) price set during initialization"
         category:
           type: string
           enum:
@@ -211,10 +306,15 @@ components:
             type: integer
             format: int64
           description: "List of ingredient IDs for this product"
+        outOfStock:
+          type: boolean
+          default: false
+          description: "When true, the product is hidden from the order view"
       required:
         - id
         - name
         - price
+        - originalPrice
         - category
     Ingredient:
       type: object
@@ -286,3 +386,39 @@ components:
           items:
             type: string
           description: "Error messages for orders that could not be imported"
+    ProductsMeta:
+      type: object
+      required:
+        - productsUpdatedAt
+      properties:
+        productsUpdatedAt:
+          type: string
+          format: date-time
+          description: "Timestamp of the last change to any product (price or stock status)"
+    UpdateProductRequest:
+      type: object
+      properties:
+        price:
+          type: number
+          format: double
+          minimum: 0
+          description: "New price for the product"
+        outOfStock:
+          type: boolean
+          description: "New stock status for the product"
+    LoginRequest:
+      type: object
+      required:
+        - pin
+      properties:
+        pin:
+          type: string
+          description: "Admin PIN for authentication"
+    LoginResponse:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: "JWT token for subsequent admin requests"

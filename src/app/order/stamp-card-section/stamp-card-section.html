@@ -1,5 +1,6 @@
 <section class="mb-5 bg-violet-50 border border-violet-100 rounded-lg px-3 py-3">
   @let enabled = (orderService.stampCardEnabled$ | async) === true;
+  @let freeCount = (earnedFreeDrinksCount$ | async)!;
 
   <div class="flex items-center gap-3" [class.mb-3]="enabled">
     <span class="text-sm font-bold text-violet-800">🎫 Stempelkarte</span>
@@ -14,17 +15,20 @@
         [class.translate-x-1]="!enabled">
       </span>
     </button>
-<!--    @if(!enabled) {-->
-<!--      <span class="text-xs text-violet-400 italic">aus</span>-->
-<!--    }-->
+
+    <!-- Gratis-Badge (oben rechts neben Toggle) -->
+    @if(enabled && freeCount > 0) {
+      <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-auto">
+        {{ freeCount }}x gratis
+      </span>
+    }
   </div>
 
   @if(enabled) {
     @let stampBefore = (orderService.stampCardStatus$ | async)!;
     @let stampAfter = (orderService.stampCardStatusAfter$ | async)!;
-    @let freeCount = (earnedFreeDrinksCount$ | async)!;
 
-    <div class="flex items-center pt-2 space-y-2 gap-2">
+    <div class="flex justify-center pt-2 space-y-2 gap-2">
 
       <!-- Vorher (clickable) -->
       <div class="flex flex-col items-center gap-1 shrink-0">
@@ -68,12 +72,6 @@
         </span>
       </div>
 
-      <!-- Gratis-Badge -->
-      @if(freeCount > 0) {
-        <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap ml-auto">
-          {{ freeCount }}x gratis
-        </span>
-      }
 
     </div>
   }
