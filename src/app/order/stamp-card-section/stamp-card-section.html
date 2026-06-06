@@ -30,45 +30,81 @@
 
       <p class="text-xs text-gray-500 mb-2">Aktueller Stand der Stempelkarte</p>
 
-      <!-- Reihe 1: Stempel 1–4 + Bonus ⭐ -->
+      <!-- Reihe 1: Stempel 1–4 + Bonus -->
       <div class="flex items-center gap-1.5">
         @for(pos of row1; track pos) {
-          <button
-            class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors flex items-center justify-center"
-            [class.bg-amber-400]="isBonusPos(pos) && walletPosition >= pos"
-            [class.border-amber-400]="isBonusPos(pos) && walletPosition >= pos"
-            [class.bg-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
-            [class.text-white]="walletPosition >= pos"
-            [class.border-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
-            [class.border-gray-300]="walletPosition < pos && !isBonusPos(pos)"
-            [class.border-dashed]="walletPosition < pos && isBonusPos(pos)"
-            [class.border-amber-300]="walletPosition < pos && isBonusPos(pos)"
-            [class.text-amber-300]="walletPosition < pos && isBonusPos(pos)"
-            (click)="onWalletStampClick(pos)"
-            [attr.aria-label]="isBonusPos(pos) ? 'Gratisdrink Position ' + pos : 'Stempel ' + pos">
-            @if(isBonusPos(pos)) { ⭐ } @else { {{ pos }} }
-          </button>
+          @if(!isBonusPos(pos)) {
+            <button
+              class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors flex items-center justify-center"
+              [class.bg-rotaract-cranberry]="walletPosition >= pos"
+              [class.border-rotaract-cranberry]="walletPosition >= pos"
+              [class.text-white]="walletPosition >= pos"
+              [class.border-gray-300]="walletPosition < pos"
+              [class.text-gray-400]="walletPosition < pos"
+              (click)="onWalletStampClick(pos)"
+              [attr.aria-label]="'Stempel ' + pos">
+              {{ pos }}
+            </button>
+          } @else {
+            <button
+              class="h-10 px-3 rounded-lg border-2 font-bold text-xs transition-all flex items-center justify-center gap-1 ml-1"
+              [class.bg-amber-400]="isRewardEarned(pos)"
+              [class.border-amber-400]="isRewardEarned(pos)"
+              [class.text-white]="isRewardEarned(pos)"
+              [class.animate-pulse]="isRewardEarned(pos)"
+              [class.bg-green-100]="isRewardRedeemed(pos)"
+              [class.border-green-400]="isRewardRedeemed(pos)"
+              [class.text-green-700]="isRewardRedeemed(pos)"
+              [class.bg-gray-50]="!isRewardEarned(pos) && !isRewardRedeemed(pos)"
+              [class.border-gray-200]="!isRewardEarned(pos) && !isRewardRedeemed(pos)"
+              [class.text-gray-400]="!isRewardEarned(pos) && !isRewardRedeemed(pos)"
+              (click)="onWalletStampClick(pos)"
+              [attr.aria-label]="'Gratisdrink Position ' + pos">
+              <span class="flex flex-col items-center leading-tight">
+                <span [class.line-through]="isRewardRedeemed(pos)">GRATIS</span>
+                <span class="text-[10px] opacity-70">{{ pos }}</span>
+              </span>
+            </button>
+          }
         }
       </div>
 
-      <!-- Reihe 2: Stempel 6–9 + Bonus ⭐ -->
+      <!-- Reihe 2: Stempel 6–9 + Bonus -->
       <div class="flex items-center gap-1.5 mt-1.5">
         @for(pos of row2; track pos) {
-          <button
-            class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors flex items-center justify-center"
-            [class.bg-amber-400]="isBonusPos(pos) && walletPosition >= pos"
-            [class.border-amber-400]="isBonusPos(pos) && walletPosition >= pos"
-            [class.bg-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
-            [class.text-white]="walletPosition >= pos"
-            [class.border-rotaract-cranberry]="!isBonusPos(pos) && walletPosition >= pos"
-            [class.border-gray-300]="walletPosition < pos && !isBonusPos(pos)"
-            [class.border-dashed]="walletPosition < pos && isBonusPos(pos)"
-            [class.border-amber-300]="walletPosition < pos && isBonusPos(pos)"
-            [class.text-amber-300]="walletPosition < pos && isBonusPos(pos)"
-            (click)="onWalletStampClick(pos)"
-            [attr.aria-label]="isBonusPos(pos) ? 'Gratisdrink Position ' + pos : 'Stempel ' + pos">
-            @if(isBonusPos(pos)) { ⭐ } @else { {{ pos }} }
-          </button>
+          @if(!isBonusPos(pos)) {
+            <button
+              class="w-10 h-10 rounded-full border-2 font-bold text-sm transition-colors flex items-center justify-center"
+              [class.bg-rotaract-cranberry]="walletPosition >= pos"
+              [class.border-rotaract-cranberry]="walletPosition >= pos"
+              [class.text-white]="walletPosition >= pos"
+              [class.border-gray-300]="walletPosition < pos"
+              [class.text-gray-400]="walletPosition < pos"
+              (click)="onWalletStampClick(pos)"
+              [attr.aria-label]="'Stempel ' + pos">
+              {{ pos % 5 === 0 ? 5 : pos % 5 }}
+            </button>
+          } @else {
+            <button
+              class="h-10 px-3 rounded-lg border-2 font-bold text-xs transition-all flex items-center justify-center gap-1 ml-1"
+              [class.bg-amber-400]="isRewardEarned(pos)"
+              [class.border-amber-400]="isRewardEarned(pos)"
+              [class.text-white]="isRewardEarned(pos)"
+              [class.animate-pulse]="isRewardEarned(pos)"
+              [class.bg-green-100]="isRewardRedeemed(pos)"
+              [class.border-green-400]="isRewardRedeemed(pos)"
+              [class.text-green-700]="isRewardRedeemed(pos)"
+              [class.bg-gray-50]="!isRewardEarned(pos) && !isRewardRedeemed(pos)"
+              [class.border-gray-200]="!isRewardEarned(pos) && !isRewardRedeemed(pos)"
+              [class.text-gray-400]="!isRewardEarned(pos) && !isRewardRedeemed(pos)"
+              (click)="onWalletStampClick(pos)"
+              [attr.aria-label]="'Gratisdrink Position ' + pos">
+              <span class="flex flex-col items-center leading-tight">
+                <span [class.line-through]="isRewardRedeemed(pos)">GRATIS</span>
+                <span class="text-[10px] opacity-70">{{ pos }}</span>
+              </span>
+            </button>
+          }
         }
       </div>
 

@@ -39,9 +39,19 @@ export class StampCardSection {
   /** Alle 10 Positionen in einer Zeile mit visueller Trennung im Template */
   protected readonly allPositions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  /** Positionen 5 und 10 sind Gratis-Slots (⭐) */
+  /** Positionen 5 und 10 sind Gratis-Slots */
   isBonusPos(pos: number): boolean {
     return pos === 5 || pos === 10;
+  }
+
+  /** Gratis-Slot ist verdient, aber noch nicht eingelöst (walletPosition === rewardPos - 1) */
+  isRewardEarned(rewardPos: number): boolean {
+    return this.walletPosition === rewardPos - 1;
+  }
+
+  /** Gratis-Slot wurde bereits eingelöst */
+  isRewardRedeemed(rewardPos: number): boolean {
+    return this.walletPosition >= rewardPos;
   }
 
   readonly earnedFreeDrinksCount$ = this.orderService.freeItemsByProduct$.pipe(
