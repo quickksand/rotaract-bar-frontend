@@ -35,4 +35,8 @@ export class PreparationComponent {
   finishOrder(orderId: number) {
     this.orderService.finishPrepOrder(orderId);
   }
+
+  completeOrderDirectly(orderId: number) {
+    this.orderService.finishPrepOrder(orderId);
+  }
 }

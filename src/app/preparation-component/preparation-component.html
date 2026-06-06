@@ -76,10 +76,17 @@
         <!-- Order Action Buttons -->
         <div class="flex gap-2">
           @if (order.status === 'OFFEN') {
-            <button class="flex-1 bg-rotaract-cranberry text-white py-3 rounded-lg font-semibold"
-                    (click)="startOrder(order.id)">
-              ⚡ Starten
-            </button>
+            <div class="flex flex-1 rounded-lg overflow-hidden">
+              <button class="flex-1 bg-rotaract-cranberry text-white py-3 font-semibold"
+                      (click)="startOrder(order.id)">
+                ⚡ Starten
+              </button>
+              <div class="w-px bg-red-400"></div>
+              <button class="flex-1 bg-green-600 text-white py-3 font-semibold hover:bg-green-700"
+                      (click)="completeOrderDirectly(order.id)">
+                ✓ Fertig
+              </button>
+            </div>
           }
 
           @if (order.status === 'IN_ARBEIT') {
